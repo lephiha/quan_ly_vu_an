@@ -13,80 +13,50 @@
      SIDEBAR
 ══════════════════════════════════════════════════════════ -->
 <aside class="sidebar">
-
-  <!-- Logo -->
   <div class="logo">
-    <img src="assets/icon.svg" class="logo-icon" alt="Logo">
+    <img src="assets/icon.svg" class="logo-icon" alt="">
     <div class="logo-text">
       <div class="logo-title">Quản Lý Vụ Án</div>
       <div class="logo-sub">Hệ thống nội bộ</div>
     </div>
   </div>
 
-  <!-- Navigation -->
   <nav class="nav">
-    <div class="nav-section">
-      <div class="nav-label">Tổng quan</div>
-      <button class="nav-btn active" data-filter="all" onclick="filterByStatus('all')">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-        <span class="nav-text">Tất cả vụ án</span>
-        <span class="nav-badge" id="badge-all">0</span>
-      </button>
-    </div>
+    <div class="nav-label">Giai đoạn</div>
 
-    <div class="nav-section">
-      <div class="nav-label">Theo trạng thái</div>
+    <button class="nav-btn dt active" data-phase="dieu-tra" onclick="switchPhase('dieu-tra')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <span class="nav-text">Điều tra</span>
+      <span class="nav-badge dt" id="sb-dt">0</span>
+    </button>
 
-      <button class="nav-btn" data-filter="dieu-tra" onclick="filterByStatus('dieu-tra')">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <span class="nav-text">Đang điều tra</span>
-        <span class="nav-badge" id="badge-dieu-tra">0</span>
-      </button>
+    <button class="nav-btn tt" data-phase="truy-to" onclick="switchPhase('truy-to')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
+      <span class="nav-text">Truy tố</span>
+      <span class="nav-badge tt" id="sb-tt">0</span>
+    </button>
 
-      <button class="nav-btn" data-filter="de-nghi" onclick="filterByStatus('de-nghi')">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-        <span class="nav-text">Đề nghị truy tố</span>
-        <span class="nav-badge orange" id="badge-de-nghi">0</span>
-      </button>
-
-      <button class="nav-btn" data-filter="truy-to" onclick="filterByStatus('truy-to')">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="3" x2="12" y2="21"/><path d="M5 9l14-6"/><path d="M3 12s0 5 5 5 5-5 5-5-0-5-5-5-5 5-5 5z"/><path d="M16 12s0 5 5 5 5-5 5-5-0-5-5-5-5 5-5 5z"/></svg>
-        <span class="nav-text">Đã truy tố</span>
-        <span class="nav-badge red" id="badge-truy-to">0</span>
-      </button>
-
-      <button class="nav-btn" data-filter="tam-dinh-chi" onclick="filterByStatus('tam-dinh-chi')">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="10" y1="15" x2="10" y2="9"/><line x1="14" y1="15" x2="14" y2="9"/></svg>
-        <span class="nav-text">Tạm đình chỉ</span>
-        <span class="nav-badge gray" id="badge-tam-dinh-chi">0</span>
-      </button>
-
-      <button class="nav-btn" data-filter="dinh-chi" onclick="filterByStatus('dinh-chi')">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
-        <span class="nav-text">Đình chỉ</span>
-        <span class="nav-badge gray" id="badge-dinh-chi">0</span>
-      </button>
-    </div>
+    <button class="nav-btn xx" data-phase="xet-xu" onclick="switchPhase('xet-xu')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="3" x2="12" y2="21"/><path d="M5 9l14-6"/><path d="M3 12s0 5 5 5 5-5 5-5-0-5-5-5-5 5-5 5z"/><path d="M16 12s0 5 5 5 5-5 5-5-0-5-5-5-5 5-5 5z"/></svg>
+      <span class="nav-text">Xét xử</span>
+      <span class="nav-badge xx" id="sb-xx">0</span>
+    </button>
 
     <div class="nav-divider"></div>
+    <div class="nav-label">Dữ liệu</div>
 
-    <div class="nav-section">
-      <div class="nav-label">Dữ liệu</div>
-      <button class="nav-btn" onclick="openImport()">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        <span class="nav-text">Nhập / Xuất</span>
-      </button>
-    </div>
+    <button class="nav-btn" onclick="showModal('modal-import')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      <span class="nav-text">Nhập / Xuất</span>
+    </button>
   </nav>
 
-  <!-- Sidebar footer -->
   <div class="sidebar-footer">
-    <button class="btn btn-ghost btn-sm" onclick="exportExcel()" style="width:100%; justify-content:flex-start; gap:8px;">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      <span class="nav-text">Xuất Excel</span>
+    <button class="btn btn-ghost btn-sm" onclick="exportCSV()" style="width:100%; justify-content:center;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      <span>Xuất Excel</span>
     </button>
   </div>
-
 </aside>
 
 
@@ -95,114 +65,221 @@
 ══════════════════════════════════════════════════════════ -->
 <div class="main">
 
-  <!-- Topbar -->
+  <!-- Topbar with phase tabs -->
   <header class="topbar">
-    <div class="topbar-left">
-      <div class="page-title" id="page-title">Tất cả vụ án</div>
+    <div class="phase-tabs">
+      <button class="phase-tab dt active" id="phase-tab-dieu-tra" onclick="switchPhase('dieu-tra')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Điều tra
+        <span class="tab-count" id="count-dt">0</span>
+      </button>
+      <button class="phase-tab tt" id="phase-tab-truy-to" onclick="switchPhase('truy-to')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Truy tố
+        <span class="tab-count" id="count-tt">0</span>
+      </button>
+      <button class="phase-tab xx" id="phase-tab-xet-xu" onclick="switchPhase('xet-xu')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="3" x2="12" y2="21"/><path d="M5 9l14-6"/><path d="M3 12s0 5 5 5 5-5 5-5"/><path d="M16 12s0 5 5 5 5-5 5-5"/></svg>
+        Xét xử
+        <span class="tab-count" id="count-xx">0</span>
+      </button>
     </div>
+    <div style="flex:1"></div>
     <div class="topbar-right">
       <div class="save-indicator">
         <div class="save-dot" id="save-dot"></div>
-        <span id="save-time">Chưa lưu</span>
+        <span id="save-time">Đang tải...</span>
       </div>
-      <button class="btn btn-ghost" onclick="openImport()">
+      <button class="btn btn-ghost btn-sm" onclick="showModal('modal-import')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Xuất / Nhập
       </button>
-      <button class="btn btn-primary" onclick="openAddModal()">
+      <button class="btn btn-primary" onclick="openAdd()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Thêm vụ án
       </button>
     </div>
   </header>
 
-  <!-- Content -->
+  <!-- Content panels -->
   <main class="content">
 
-    <!-- Stats -->
-    <div class="stats-grid">
-
-      <div class="stat-card all" id="card-all" onclick="filterByStatus('all')">
-        <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-        <div class="stat-label">Tổng vụ án</div>
-        <div class="stat-value" id="stat-all">0</div>
+    <!-- ── ĐIỀU TRA PANEL ────────────────────────────────── -->
+    <div class="phase-panel active" id="panel-dieu-tra">
+      <div class="phase-header dt">
+        <div class="phase-header-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <div class="phase-header-info">
+          <div class="phase-header-title">Giai đoạn Điều tra</div>
+          <div class="phase-header-sub">Các vụ án đang trong quá trình điều tra. Bấm <strong>→ Truy tố</strong> để chuyển giai đoạn.</div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openAdd()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Thêm vụ án
+        </button>
       </div>
 
-      <div class="stat-card dieu-tra" id="card-dieu-tra" onclick="filterByStatus('dieu-tra')">
-        <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <div class="stat-label">Đang điều tra</div>
-        <div class="stat-value" id="stat-dieu-tra">0</div>
+      <!-- Stats pills -->
+      <div class="stats-row">
+        <div class="stat-pill active-filter" onclick="setPhaseFilter('dieu-tra','all')">
+          <div class="stat-pill-icon" style="background:rgba(79,126,248,0.12)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
+          <div class="stat-pill-info"><div class="stat-pill-val" id="stat-dt-all">0</div><div class="stat-pill-lbl">Tất cả</div></div>
+        </div>
+        <div class="stat-pill" onclick="setPhaseFilter('dieu-tra','moi')">
+          <div class="stat-pill-icon" style="background:rgba(56,189,248,0.12)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--dt-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+          <div class="stat-pill-info"><div class="stat-pill-val" style="color:var(--dt-color)" id="stat-dt-moi">0</div><div class="stat-pill-lbl">Mới</div></div>
+        </div>
+        <div class="stat-pill" onclick="setPhaseFilter('dieu-tra','nhan-lai')">
+          <div class="stat-pill-icon" style="background:rgba(251,191,36,0.12)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.94"/></svg></div>
+          <div class="stat-pill-info"><div class="stat-pill-val" style="color:var(--gold)" id="stat-dt-nhanLai">0</div><div class="stat-pill-lbl">Nhận lại</div></div>
+        </div>
+        <div class="stat-pill" onclick="setPhaseFilter('dieu-tra','dinh-chi')">
+          <div class="stat-pill-icon" style="background:rgba(239,68,68,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div>
+          <div class="stat-pill-info"><div class="stat-pill-val" style="color:var(--red)" id="stat-dt-dinh">0</div><div class="stat-pill-lbl">Đình chỉ</div></div>
+        </div>
       </div>
 
-      <div class="stat-card de-nghi" id="card-de-nghi" onclick="filterByStatus('de-nghi')">
-        <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
-        <div class="stat-label">Đề nghị truy tố</div>
-        <div class="stat-value" id="stat-de-nghi">0</div>
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="search-box">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="search-dieu-tra" placeholder="Tìm mã DL, tên, điều luật, KSV..." oninput="onSearch('dieu-tra')">
+        </div>
       </div>
 
-      <div class="stat-card truy-to" id="card-truy-to" onclick="filterByStatus('truy-to')">
-        <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="3" x2="12" y2="21"/><path d="M5 9l14-6"/><path d="M3 12s0 5 5 5 5-5 5-5-0-5-5-5-5 5-5 5z"/><path d="M16 12s0 5 5 5 5-5 5-5-0-5-5-5-5 5-5 5z"/></svg>
-        <div class="stat-label">Đã truy tố</div>
-        <div class="stat-value" id="stat-truy-to">0</div>
-      </div>
-
-      <div class="stat-card dinh-chi" id="card-dinh-chi" onclick="filterByStatus('dinh-chi')">
-        <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="var(--gray)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
-        <div class="stat-label">Đình chỉ</div>
-        <div class="stat-value" id="stat-dinh-chi">0</div>
-      </div>
-
-    </div>
-
-    <!-- Toolbar -->
-    <div class="toolbar">
-      <div class="search-box">
-        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" id="search-input" placeholder="Tìm số vụ án, bị can, tội danh, KSV..." oninput="renderTable()">
-      </div>
-      <select class="form-control" id="sort-select" onchange="renderTable()" style="width:auto; min-width:160px;">
-        <option value="date-desc">📅 Mới nhất trước</option>
-        <option value="date-asc">📅 Cũ nhất trước</option>
-        <option value="so-vu">🔢 Theo số vụ án</option>
-        <option value="status">🏷 Theo trạng thái</option>
-      </select>
-      <button class="btn btn-ghost btn-sm" onclick="exportExcel()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Xuất CSV
-      </button>
-    </div>
-
-    <!-- Table -->
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th style="width:40px">#</th>
-            <th>Số vụ án</th>
+      <!-- Table -->
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th style="width:36px">#</th>
+            <th>Mã DL</th>
             <th>Bị can</th>
-            <th>Tội danh</th>
-            <th>Ngày khởi tố</th>
-            <th>Hạn điều tra</th>
+            <th>Điều luật</th>
+            <th>KSV</th>
+            <th>Hạn ĐT</th>
             <th>Trạng thái</th>
-            <th>KSV phụ trách</th>
-            <th style="width:90px">Thao tác</th>
-          </tr>
-        </thead>
-        <tbody id="table-body"></tbody>
-      </table>
+            <th style="width:160px">Thao tác</th>
+          </tr></thead>
+          <tbody id="tbody-dieu-tra"></tbody>
+        </table>
+        <div id="empty-dieu-tra" class="empty-state" style="display:none;">
+          <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <div class="empty-text">Không có vụ án nào đang điều tra</div>
+        </div>
+      </div>
+    </div>
 
-      <!-- Empty state -->
-      <div id="empty-state" class="empty-state" style="display:none;">
-        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-          <line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/>
-        </svg>
-        <div class="empty-text">Chưa có vụ án nào</div>
-        <div style="margin-top:14px;">
-          <button class="btn btn-primary" onclick="openAddModal()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Thêm vụ án đầu tiên
-          </button>
+    <!-- ── TRUY TỐ PANEL ─────────────────────────────────── -->
+    <div class="phase-panel" id="panel-truy-to">
+      <div class="phase-header tt">
+        <div class="phase-header-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
+        </div>
+        <div class="phase-header-info">
+          <div class="phase-header-title">Giai đoạn Truy tố</div>
+          <div class="phase-header-sub">Vụ án đã chuyển từ Điều tra. Bấm <strong>→ Xét xử</strong> để tiếp tục.</div>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-pill active-filter" onclick="setPhaseFilter('truy-to','all')">
+          <div class="stat-pill-icon" style="background:rgba(79,126,248,0.12)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
+          <div class="stat-pill-info"><div class="stat-pill-val" id="stat-tt-all">0</div><div class="stat-pill-lbl">Tất cả</div></div>
+        </div>
+        <div class="stat-pill" onclick="setPhaseFilter('truy-to','de-nghi')">
+          <div class="stat-pill-icon" style="background:rgba(249,115,22,0.12)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--tt-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div>
+          <div class="stat-pill-info"><div class="stat-pill-val" style="color:var(--tt-color)" id="stat-tt-denghi">0</div><div class="stat-pill-lbl">Đề nghị TT</div></div>
+        </div>
+        <div class="stat-pill" onclick="setPhaseFilter('truy-to','truy-to')">
+          <div class="stat-pill-icon" style="background:rgba(239,68,68,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="stat-pill-info"><div class="stat-pill-val" style="color:var(--red)" id="stat-tt-tt">0</div><div class="stat-pill-lbl">Đã truy tố</div></div>
+        </div>
+        <div class="stat-pill" onclick="setPhaseFilter('truy-to','dinh-chi')">
+          <div class="stat-pill-icon" style="background:rgba(100,116,139,0.12)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--gray)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div>
+          <div class="stat-pill-info"><div class="stat-pill-val" style="color:var(--gray)" id="stat-tt-dinh">0</div><div class="stat-pill-lbl">Đình chỉ</div></div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-box">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="search-truy-to" placeholder="Tìm mã DL, tên, điều luật, KSV..." oninput="onSearch('truy-to')">
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th style="width:36px">#</th>
+            <th>Mã DL</th>
+            <th>Bị can</th>
+            <th>Điều luật</th>
+            <th>KSV</th>
+            <th>Ngày đề nghị</th>
+            <th>Trạng thái</th>
+            <th style="width:160px">Thao tác</th>
+          </tr></thead>
+          <tbody id="tbody-truy-to"></tbody>
+        </table>
+        <div id="empty-truy-to" class="empty-state" style="display:none;">
+          <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
+          <div class="empty-text">Chưa có vụ án nào ở giai đoạn Truy tố</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── XÉT XỬ PANEL ──────────────────────────────────── -->
+    <div class="phase-panel" id="panel-xet-xu">
+      <div class="phase-header xx">
+        <div class="phase-header-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="3" x2="12" y2="21"/><path d="M5 9l14-6"/><path d="M3 12s0 5 5 5 5-5 5-5-0-5-5-5-5 5-5 5z"/><path d="M16 12s0 5 5 5 5-5 5-5-0-5-5-5-5 5-5 5z"/></svg>
+        </div>
+        <div class="phase-header-info">
+          <div class="phase-header-title">Giai đoạn Xét xử</div>
+          <div class="phase-header-sub">Vụ án đã được truy tố và chuyển ra toà. Theo dõi kết quả xét xử tại đây.</div>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-pill active-filter" onclick="setPhaseFilter('xet-xu','all')">
+          <div class="stat-pill-icon" style="background:rgba(79,126,248,0.12)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
+          <div class="stat-pill-info"><div class="stat-pill-val" id="stat-xx-all">0</div><div class="stat-pill-lbl">Tất cả</div></div>
+        </div>
+        <div class="stat-pill" onclick="setPhaseFilter('xet-xu','dang-xx')">
+          <div class="stat-pill-icon" style="background:rgba(167,139,250,0.12)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--xx-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <div class="stat-pill-info"><div class="stat-pill-val" style="color:var(--xx-color)" id="stat-xx-dang">0</div><div class="stat-pill-lbl">Đang XX</div></div>
+        </div>
+        <div class="stat-pill" onclick="setPhaseFilter('xet-xu','da-xet-xu')">
+          <div class="stat-pill-icon" style="background:rgba(34,197,94,0.12)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="stat-pill-info"><div class="stat-pill-val" style="color:var(--green)" id="stat-xx-done">0</div><div class="stat-pill-lbl">Đã xét xử</div></div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-box">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="search-xet-xu" placeholder="Tìm mã DL, tên, điều luật, KSV..." oninput="onSearch('xet-xu')">
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th style="width:36px">#</th>
+            <th>Mã DL</th>
+            <th>Bị can</th>
+            <th>Điều luật</th>
+            <th>KSV</th>
+            <th>Ngày xét xử</th>
+            <th>Trạng thái</th>
+            <th style="width:100px">Thao tác</th>
+          </tr></thead>
+          <tbody id="tbody-xet-xu"></tbody>
+        </table>
+        <div id="empty-xet-xu" class="empty-state" style="display:none;">
+          <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="3" x2="12" y2="21"/><path d="M5 9l14-6"/></svg>
+          <div class="empty-text">Chưa có vụ án nào ở giai đoạn Xét xử</div>
         </div>
       </div>
     </div>
@@ -212,223 +289,378 @@
 
 
 <!-- ══════════════════════════════════════════════════════════
-     MODAL: THÊM / SỬA VỤ ÁN
+     MODAL: THÊM / SỬA
 ══════════════════════════════════════════════════════════ -->
 <div class="modal-overlay" id="modal-form">
-  <div class="modal">
-
+  <div class="modal" style="max-width:660px;">
     <div class="modal-header">
-      <div class="modal-header-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-      </div>
-      <div class="modal-title-group">
+      <div>
         <div class="modal-title" id="modal-form-title">Thêm vụ án mới</div>
-        <div class="modal-subtitle" id="modal-form-subtitle">Nhập đầy đủ thông tin vụ án</div>
+        <div class="modal-subtitle" id="modal-form-subtitle">Mã DL tự động tạo</div>
       </div>
       <button class="modal-close" onclick="closeModal('modal-form')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
-
     <div class="modal-body">
+      <input type="hidden" id="f-phase" value="dieu-tra">
 
+      <!-- Thông tin cơ bản -->
+      <div class="section-header">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Thông tin bị can
+      </div>
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
-            Số vụ án *
-          </label>
-          <input class="form-control" id="f-so-vu" placeholder="VD: 42/QĐ-CSHS">
+          <label class="form-label">Họ tên bị can *</label>
+          <input class="form-control" id="f-ten" placeholder="Nhập đầy đủ họ tên">
         </div>
         <div class="form-group">
-          <label class="form-label">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            Ngày khởi tố
-          </label>
-          <input class="form-control" type="date" id="f-ngay-khoi-to">
+          <label class="form-label">Năm sinh</label>
+          <input class="form-control" id="f-namsinh" placeholder="VD: 1990">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">CCCD / CMND</label>
+          <input class="form-control" id="f-cccd" placeholder="Số CCCD">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Địa chỉ</label>
+          <input class="form-control" id="f-diachi" placeholder="Địa chỉ thường trú">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Điều luật *</label>
+          <input class="form-control" id="f-dieuluat" placeholder="VD: Điều 168 BLHS">
+        </div>
+        <div class="form-group">
+          <label class="form-label">KSV phụ trách</label>
+          <input class="form-control" id="f-ksv" placeholder="Tên kiểm sát viên">
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="form-group">
+          <label class="form-label">Ghi chú chung</label>
+          <textarea class="form-control" id="f-ghichu" rows="2" placeholder="Ghi chú..."></textarea>
         </div>
       </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            Tội danh *
-          </label>
-          <input class="form-control" id="f-toi-danh" placeholder="VD: Cướp tài sản">
-        </div>
-        <div class="form-group">
-          <label class="form-label">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            Điều khoản
-          </label>
-          <input class="form-control" id="f-dieu-khoan" placeholder="VD: Điều 168 BLHS">
-        </div>
+      <!-- Điều tra -->
+      <div class="section-header dt" id="f-section-dt">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Giai đoạn Điều tra
       </div>
-
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            Hạn điều tra
-          </label>
-          <input class="form-control" type="date" id="f-han-dt">
-        </div>
-        <div class="form-group">
-          <label class="form-label">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            Ngày đề nghị truy tố
-          </label>
-          <input class="form-control" type="date" id="f-ngay-de-nghi">
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M5.86 5.07a10 10 0 0 0 0 14"/></svg>
-            Trạng thái
-          </label>
-          <select class="form-control" id="f-trang-thai">
-            <option value="dieu-tra">🔍 Đang điều tra</option>
-            <option value="de-nghi">📄 Đề nghị truy tố</option>
-            <option value="truy-to">⚖️ Đã truy tố</option>
-            <option value="tam-dinh-chi">⏸ Tạm đình chỉ</option>
-            <option value="dinh-chi">🚫 Đình chỉ</option>
+          <label class="form-label">Trạng thái</label>
+          <select class="form-control" id="f-dt-trangthai">
+            <option value="moi">Mới</option>
+            <option value="nhan-lai">Nhận lại</option>
+            <option value="tach">Tách vụ</option>
+            <option value="dinh-chi">Đình chỉ</option>
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            KSV phụ trách
-          </label>
-          <input class="form-control" id="f-ksv" placeholder="Họ tên kiểm sát viên">
+          <label class="form-label">CQ điều tra</label>
+          <input class="form-control" id="f-dt-cqdt" placeholder="Tên cơ quan điều tra">
         </div>
       </div>
-
-      <!-- Bị can -->
-      <div class="bi-can-section">
-        <div class="bi-can-header">
-          <div class="bi-can-header-left">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            Danh sách bị can
-          </div>
-          <button class="btn btn-ghost btn-sm" onclick="addBiCanRow()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Thêm bị can
-          </button>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Ngày khởi tố</label>
+          <input class="form-control" type="date" id="f-dt-ngaykhoi">
         </div>
-        <div id="bi-can-rows"></div>
+        <div class="form-group">
+          <label class="form-label">Hạn điều tra</label>
+          <input class="form-control" type="date" id="f-dt-han">
+        </div>
       </div>
-
       <div class="form-row full">
         <div class="form-group">
-          <label class="form-label">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-            Ghi chú
-          </label>
-          <textarea class="form-control" id="f-ghi-chu" placeholder="Ghi chú thêm về vụ án..."></textarea>
+          <label class="form-label">Ghi chú điều tra</label>
+          <input class="form-control" id="f-dt-ghichu" placeholder="Ghi chú giai đoạn điều tra...">
+        </div>
+      </div>
+
+      <!-- Truy tố -->
+      <div class="section-header tt" id="f-section-tt">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Giai đoạn Truy tố <span style="color:var(--text3);font-weight:400;font-size:10px;margin-left:6px">(nếu đã có)</span>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Trạng thái</label>
+          <select class="form-control" id="f-tt-trangthai">
+            <option value="">— Chưa có —</option>
+            <option value="de-nghi">Đề nghị truy tố</option>
+            <option value="cho-pc">Chờ phê chuẩn</option>
+            <option value="truy-to">Đã truy tố</option>
+            <option value="dinh-chi">Đình chỉ</option>
+            <option value="tam-dinh-chi">Tạm đình chỉ</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Kết quả</label>
+          <select class="form-control" id="f-tt-ketqua">
+            <option value="">— Chưa có —</option>
+            <option value="de-nghi">Đề nghị TT</option>
+            <option value="truy-to">Truy tố</option>
+            <option value="dinh-chi">Đình chỉ</option>
+            <option value="tam-dinh-chi">Tạm đình chỉ</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Ngày đề nghị</label>
+          <input class="form-control" type="date" id="f-tt-ngaydn">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ngày quyết định</label>
+          <input class="form-control" type="date" id="f-tt-ngayqd">
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="form-group">
+          <label class="form-label">Ghi chú truy tố</label>
+          <input class="form-control" id="f-tt-ghichu" placeholder="Ghi chú giai đoạn truy tố...">
+        </div>
+      </div>
+
+      <!-- Xét xử -->
+      <div class="section-header xx" id="f-section-xx">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="3" x2="12" y2="21"/><path d="M5 9l14-6"/></svg>
+        Giai đoạn Xét xử <span style="color:var(--text3);font-weight:400;font-size:10px;margin-left:6px">(nếu đã có)</span>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Trạng thái</label>
+          <select class="form-control" id="f-xx-trangthai">
+            <option value="">— Chưa có —</option>
+            <option value="dang-xx">Đang xét xử</option>
+            <option value="da-xet-xu">Đã xét xử</option>
+            <option value="giai-quyet">Đã giải quyết</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Kết quả</label>
+          <select class="form-control" id="f-xx-ketqua">
+            <option value="">— Chưa có —</option>
+            <option value="dang-xx">Đang xét xử</option>
+            <option value="da-xet-xu">Đã xét xử</option>
+            <option value="giai-quyet">Đã giải quyết</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Ngày xét xử</label>
+          <input class="form-control" type="date" id="f-xx-ngayxx">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Toà án</label>
+          <input class="form-control" id="f-xx-toa" placeholder="VD: TAND Quận 1">
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="form-group">
+          <label class="form-label">Ghi chú xét xử</label>
+          <input class="form-control" id="f-xx-ghichu" placeholder="Bản án, hình phạt...">
         </div>
       </div>
 
     </div>
-
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-form')">Hủy</button>
       <div style="flex:1"></div>
       <button class="btn btn-primary" onclick="saveVuAn()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
         Lưu vụ án
       </button>
     </div>
-
   </div>
 </div>
 
 
 <!-- ══════════════════════════════════════════════════════════
-     MODAL: CHI TIẾT VỤ ÁN
+     MODAL: CHUYỂN GIAI ĐOẠN
+══════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-advance">
+  <div class="modal advance-modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="adv-title">Chuyển giai đoạn</div>
+        <div class="modal-subtitle" id="adv-subtitle"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-advance')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Fields for Truy tố -->
+      <div id="adv-tt-fields">
+        <div class="section-header tt">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Thông tin Truy tố
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Trạng thái</label>
+            <select class="form-control" id="adv-tt-trangthai">
+              <option value="de-nghi">Đề nghị truy tố</option>
+              <option value="cho-pc">Chờ phê chuẩn</option>
+              <option value="truy-to">Đã truy tố</option>
+              <option value="dinh-chi">Đình chỉ</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Kết quả</label>
+            <select class="form-control" id="adv-tt-ketqua">
+              <option value="de-nghi">Đề nghị TT</option>
+              <option value="truy-to">Truy tố</option>
+              <option value="dinh-chi">Đình chỉ</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Ngày đề nghị</label>
+            <input class="form-control" type="date" id="adv-tt-ngaydn">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Ngày quyết định</label>
+            <input class="form-control" type="date" id="adv-tt-ngayqd">
+          </div>
+        </div>
+        <div class="form-row full">
+          <div class="form-group">
+            <label class="form-label">Ghi chú</label>
+            <input class="form-control" id="adv-tt-ghichu" placeholder="Ghi chú truy tố...">
+          </div>
+        </div>
+      </div>
+
+      <!-- Fields for Xét xử -->
+      <div id="adv-xx-fields" style="display:none;">
+        <div class="section-header xx">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="3" x2="12" y2="21"/><path d="M5 9l14-6"/></svg>
+          Thông tin Xét xử
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Trạng thái</label>
+            <select class="form-control" id="adv-xx-trangthai">
+              <option value="dang-xx">Đang xét xử</option>
+              <option value="da-xet-xu">Đã xét xử</option>
+              <option value="giai-quyet">Đã giải quyết</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Kết quả</label>
+            <select class="form-control" id="adv-xx-ketqua">
+              <option value="dang-xx">Đang xét xử</option>
+              <option value="da-xet-xu">Đã xét xử</option>
+              <option value="giai-quyet">Đã giải quyết</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Ngày xét xử</label>
+            <input class="form-control" type="date" id="adv-xx-ngayxx">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Toà án</label>
+            <input class="form-control" id="adv-xx-toa" placeholder="VD: TAND Quận 1">
+          </div>
+        </div>
+        <div class="form-row full">
+          <div class="form-group">
+            <label class="form-label">Ghi chú / Bản án</label>
+            <input class="form-control" id="adv-xx-ghichu" placeholder="Hình phạt, bản án...">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-advance')">Hủy</button>
+      <div style="flex:1"></div>
+      <button class="btn btn-primary" id="btn-confirm-advance">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+        Xác nhận chuyển
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     MODAL: CHI TIẾT
 ══════════════════════════════════════════════════════════ -->
 <div class="modal-overlay" id="modal-detail">
   <div class="modal" style="max-width:700px;">
-
     <div class="modal-header">
-      <div class="modal-header-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      </div>
-      <div class="modal-title-group">
-        <div class="modal-title" id="modal-detail-title">Chi tiết vụ án</div>
-        <div class="modal-subtitle" id="modal-detail-subtitle"></div>
+      <div>
+        <div class="modal-title" id="detail-title"></div>
+        <div class="modal-subtitle" id="detail-subtitle"></div>
       </div>
       <button class="modal-close" onclick="closeModal('modal-detail')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
-
     <div class="modal-body">
+      <!-- Journey -->
+      <div id="detail-journey" style="display:flex; margin-bottom:20px;"></div>
 
       <!-- Tabs -->
-      <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('tab-info')">
+      <div class="detail-tabs">
+        <button class="detail-tab-btn active" onclick="switchDetailTab('tab-tong-quan')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          Thông tin
+          Tổng quan
         </button>
-        <button class="tab-btn" onclick="switchTab('tab-bican')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          Bị can
-        </button>
-        <button class="tab-btn" onclick="switchTab('tab-note')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <button class="detail-tab-btn" onclick="switchDetailTab('tab-notes')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
           Ghi chú
         </button>
-        <button class="tab-btn" onclick="switchTab('tab-history')">
+        <button class="detail-tab-btn" onclick="switchDetailTab('tab-history')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.94"/></svg>
           Lịch sử
         </button>
       </div>
 
-      <!-- Tab: Thông tin -->
-      <div class="tab-content active" id="tab-info">
-        <div class="detail-grid" id="detail-grid"></div>
+      <div class="detail-tab-panel active" id="tab-tong-quan">
+        <div id="detail-info"></div>
       </div>
-
-      <!-- Tab: Bị can -->
-      <div class="tab-content" id="tab-bican">
-        <div id="detail-bican-list"></div>
-      </div>
-
-      <!-- Tab: Ghi chú -->
-      <div class="tab-content" id="tab-note">
-        <div style="display:flex; gap:8px; margin-bottom:14px;">
-          <input class="form-control" id="note-input" placeholder="Thêm ghi chú mới..." style="flex:1;">
-          <button class="btn btn-primary" onclick="addNote()">
+      <div class="detail-tab-panel" id="tab-notes">
+        <div style="display:flex; gap:8px; margin-bottom:12px;">
+          <input class="form-control" id="detail-note-input" placeholder="Thêm ghi chú..." style="flex:1;">
+          <button class="btn btn-primary" onclick="addDetailNote()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Thêm
           </button>
         </div>
-        <div id="note-list"></div>
+        <div id="detail-notes"></div>
       </div>
-
-      <!-- Tab: Lịch sử -->
-      <div class="tab-content" id="tab-history">
-        <div id="history-list"></div>
+      <div class="detail-tab-panel" id="tab-history">
+        <div id="detail-history"></div>
       </div>
-
     </div>
-
     <div class="modal-footer">
       <button class="btn btn-danger btn-sm" onclick="confirmDelete(currentDetailId)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-        Xóa vụ án
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+        Xóa
       </button>
+      <div id="detail-advance-btns" style="display:flex; gap:6px; margin-left:4px;"></div>
       <div style="flex:1"></div>
       <button class="btn btn-ghost" onclick="closeModal('modal-detail')">Đóng</button>
-      <button class="btn btn-primary" onclick="openEditFromDetail()">
+      <button class="btn btn-primary" onclick="closeModal('modal-detail'); openEdit(currentDetailId)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         Chỉnh sửa
       </button>
     </div>
-
   </div>
 </div>
 
@@ -438,33 +670,27 @@
 ══════════════════════════════════════════════════════════ -->
 <div class="modal-overlay" id="modal-confirm">
   <div class="modal confirm-modal">
-
     <div class="modal-header">
-      <div class="modal-title-group">
-        <div class="modal-title">Xác nhận xóa</div>
-      </div>
+      <div class="modal-title">Xác nhận xóa</div>
       <button class="modal-close" onclick="closeModal('modal-confirm')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
-
-    <div class="modal-body" style="text-align:center; padding: 24px;">
+    <div class="confirm-body">
       <div class="confirm-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
       </div>
-      <p class="confirm-msg">Bạn có chắc muốn xóa vụ án này?<br>Hành động này <strong>không thể hoàn tác</strong>.</p>
+      <p class="confirm-msg">Bạn có chắc muốn xóa vụ án này? Hành động không thể hoàn tác.</p>
       <p class="confirm-name" id="confirm-name"></p>
     </div>
-
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modal-confirm')">Hủy bỏ</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-confirm')">Hủy</button>
       <div style="flex:1"></div>
-      <button class="btn btn-danger" id="confirm-delete-btn">
+      <button class="btn btn-danger" id="btn-confirm-del">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
         Xóa vụ án
       </button>
     </div>
-
   </div>
 </div>
 
@@ -473,68 +699,46 @@
      MODAL: NHẬP / XUẤT
 ══════════════════════════════════════════════════════════ -->
 <div class="modal-overlay" id="modal-import">
-  <div class="modal" style="max-width:460px;">
-
+  <div class="modal" style="max-width:440px;">
     <div class="modal-header">
-      <div class="modal-header-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      </div>
-      <div class="modal-title-group">
+      <div>
         <div class="modal-title">Nhập / Xuất dữ liệu</div>
-        <div class="modal-subtitle">Dữ liệu lưu trong máy này (localStorage)</div>
+        <div class="modal-subtitle">DB lưu trong file db.json cùng thư mục</div>
       </div>
       <button class="modal-close" onclick="closeModal('modal-import')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
-
     <div class="modal-body">
-      <div style="display:flex; flex-direction:column; gap:8px;">
-
-        <button class="import-card" onclick="exportData()">
-          <div class="import-card-icon" style="background:rgba(79,126,248,0.12);">
-            <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          </div>
-          <div>
-            <div>Xuất toàn bộ dữ liệu (.json)</div>
-            <div class="import-card-sub">Dùng để backup hoặc chuyển sang máy khác</div>
-          </div>
-        </button>
-
-        <button class="import-card" onclick="exportExcel()">
-          <div class="import-card-icon" style="background:rgba(34,197,94,0.12);">
-            <svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-          </div>
-          <div>
-            <div>Xuất danh sách vụ án (.csv)</div>
-            <div class="import-card-sub">Mở được bằng Excel / Google Sheets</div>
-          </div>
-        </button>
-
-        <div style="border-top:1px solid var(--border); padding-top:10px; margin-top:2px;">
-          <div class="drop-zone" onclick="document.getElementById('import-file').click()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            <div style="font-size:13.5px;">Nhấp để chọn file .json</div>
-            <div style="font-size:11.5px; margin-top:4px; opacity:0.7">Nhập dữ liệu từ file backup</div>
-          </div>
-          <input type="file" id="import-file" accept=".json" style="display:none;" onchange="importData(event)">
+      <button class="import-card" onclick="exportJSON()">
+        <div class="import-card-icon" style="background:rgba(79,126,248,0.12)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         </div>
-
-        <div style="border-top:1px solid var(--border); padding-top:10px; margin-top:2px;">
-          <button class="import-card" onclick="clearAllData()" style="border-color:rgba(239,68,68,0.2);">
-            <div class="import-card-icon" style="background:rgba(239,68,68,0.1);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
-            </div>
-            <div>
-              <div style="color:var(--red)">Xóa toàn bộ dữ liệu (reset)</div>
-              <div class="import-card-sub">Không thể hoàn tác — hãy backup trước!</div>
-            </div>
-          </button>
+        <div><div>Xuất toàn bộ (.json)</div><div class="import-card-sub">Backup hoặc chuyển sang máy khác</div></div>
+      </button>
+      <button class="import-card" onclick="exportCSV()">
+        <div class="import-card-icon" style="background:rgba(34,197,94,0.12)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
         </div>
-
+        <div><div>Xuất danh sách (.csv)</div><div class="import-card-sub">Mở được bằng Excel</div></div>
+      </button>
+      <div style="border-top:1px solid var(--border); padding-top:10px; margin-top:4px;">
+        <div class="drop-zone" onclick="document.getElementById('import-file').click()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <div>Nhấp để chọn file .json để nhập</div>
+          <div style="font-size:11px;margin-top:3px;opacity:0.6">Dữ liệu hiện tại sẽ bị ghi đè</div>
+        </div>
+        <input type="file" id="import-file" accept=".json" style="display:none;" onchange="onImportFile(event)">
+      </div>
+      <div style="border-top:1px solid var(--border); padding-top:10px; margin-top:4px;">
+        <button class="import-card" onclick="clearAll()" style="border-color:rgba(239,68,68,0.2);">
+          <div class="import-card-icon" style="background:rgba(239,68,68,0.1)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+          </div>
+          <div><div style="color:var(--red)">Xóa toàn bộ dữ liệu</div><div class="import-card-sub">Backup trước khi xóa!</div></div>
+        </button>
       </div>
     </div>
-
   </div>
 </div>
 <div class="signature">
@@ -542,16 +746,11 @@
 </div>
 
 <div class="sidebar-signature">
-    Lê Phi Hà 
+    Built with ❤️ by LPH
 </div>
 
 
-
-<!-- Toast container -->
 <div class="toast-container" id="toast-container"></div>
-
-<!-- JS -->
 <script src="app.js"></script>
-
 </body>
 </html>

@@ -1,217 +1,297 @@
 /* ============================================================
-   QUAN LY VU AN — app.js
+   QUẢN LÝ VỤ ÁN v3 — app.js
+   3 giai đoạn: Điều tra → Truy tố → Xét xử
+   DB: db.json (đọc/ghi qua server Node.js)
    ============================================================ */
-
 'use strict';
 
-// ── STORAGE ────────────────────────────────────────────────
-const STORAGE_KEY = 'quan_ly_vu_an_v2';
+// ══════════════════════════════════════════════════════════
+// DB — đọc/ghi file JSON qua API
+// ══════════════════════════════════════════════════════════
+let db = { version: 3, vuAns: [] };
 
-function loadData() {
+async function loadDB() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : { vuAns: [], version: 2 };
-  } catch {
-    return { vuAns: [], version: 2 };
+    const res = await fetch('/api/db');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    db = await res.json();
+    if (!db.vuAns) db.vuAns = [];
+  } catch (e) {
+    showToast('Không kết nối được server. Dùng localStorage tạm thời.', 'warning');
+    // Fallback localStorage
+    try {
+      const raw = localStorage.getItem('vu_an_v3');
+      if (raw) db = JSON.parse(raw);
+    } catch {}
   }
 }
 
-function saveData(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  updateSaveIndicator();
+async function saveDB() {
+  try {
+    const res = await fetch('/api/db', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(db, null, 2),
+    });
+    if (!res.ok) throw new Error();
+    updateSaveIndicator(true);
+  } catch {
+    // Fallback localStorage
+    localStorage.setItem('vu_an_v3', JSON.stringify(db));
+    updateSaveIndicator(true);
+  }
 }
 
-function updateSaveIndicator() {
-  const el = document.getElementById('save-time');
-  if (!el) return;
-  const now = new Date();
-  el.textContent = `Lưu lúc ${now.toLocaleTimeString('vi-VN')}`;
+function updateSaveIndicator(ok) {
+  const el  = document.getElementById('save-time');
   const dot = document.getElementById('save-dot');
-  if (dot) { dot.style.background = 'var(--green)'; }
+  if (!el) return;
+  el.textContent = ok ? `Lưu ${new Date().toLocaleTimeString('vi-VN')}` : 'Chưa lưu';
+  if (dot) dot.style.background = ok ? 'var(--green)' : 'var(--red)';
 }
 
-// ── STATE ──────────────────────────────────────────────────
-let db              = loadData();
-let currentFilter   = 'all';
+// ══════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════
+let currentPhase    = 'dieu-tra';   // 'dieu-tra' | 'truy-to' | 'xet-xu'
 let currentDetailId = null;
 let editingId       = null;
-let biCanRowIdx     = 0;
+let detailTab       = 'tab-tong-quan';
+let filterMap       = { 'dieu-tra': 'all', 'truy-to': 'all', 'xet-xu': 'all' };
+let searchMap       = { 'dieu-tra': '', 'truy-to': '', 'xet-xu': '' };
 
-if (!db.vuAns) db.vuAns = [];
-
-// ── ICONS (inline SVG strings) ─────────────────────────────
-const ICONS = {
-  search:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`,
-  plus:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
-  edit:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
-  trash:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>`,
-  x:        `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
-  save:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>`,
-  download: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`,
-  upload:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>`,
-  file:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`,
-  user:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
-  clock:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
-  info:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
-  alert:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
-  check:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
-  note:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>`,
-  history:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.94"/></svg>`,
-  folder:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>`,
-  list:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>`,
-  scales:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="3" x2="12" y2="21"/><path d="M5 9l14-6"/><path d="M3 12s0 5 5 5 5-5 5-5-0-5-5-5-5 5-5 5z"/><path d="M16 12s0 5 5 5 5-5 5-5-0-5-5-5-5 5-5 5z"/><line x1="9" y1="21" x2="15" y2="21"/></svg>`,
+// ══════════════════════════════════════════════════════════
+// ICONS
+// ══════════════════════════════════════════════════════════
+const IC = {
+  search:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`,
+  edit:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
+  trash:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>`,
+  x:       `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+  check:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+  arrow:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>`,
+  clock:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+  note:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`,
+  history: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.94"/></svg>`,
+  user:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+  plus:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+  save:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>`,
+  info:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+  phase:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+  dt_icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`,
+  tt_icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>`,
+  xx_icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="3" x2="12" y2="21"/><path d="M5 9l14-6"/><path d="M3 12s0 5 5 5 5-5 5-5-0-5-5-5-5 5-5 5z"/><path d="M16 12s0 5 5 5 5-5 5-5-0-5-5-5-5 5-5 5z"/></svg>`,
+  download:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`,
+  upload:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>`,
 };
 
-// ── STATUS CONFIG ──────────────────────────────────────────
-const STATUS = {
-  'dieu-tra':    { label: 'Đang điều tra',      cls: 'badge-dieu-tra',    icon: ICONS.search  },
-  'de-nghi':     { label: 'Đề nghị truy tố',    cls: 'badge-de-nghi',     icon: ICONS.file    },
-  'truy-to':     { label: 'Đã truy tố',          cls: 'badge-truy-to',     icon: ICONS.scales  },
-  'dinh-chi':    { label: 'Đình chỉ',            cls: 'badge-dinh-chi',    icon: ICONS.x       },
-  'tam-dinh-chi':{ label: 'Tạm đình chỉ',        cls: 'badge-tam-dinh-chi', icon: ICONS.clock  },
+// ══════════════════════════════════════════════════════════
+// STATUS CONFIG
+// ══════════════════════════════════════════════════════════
+const DT_STATUS = {
+  'moi':      { label: 'Mới',        cls: 'badge-moi'       },
+  'nhan-lai': { label: 'Nhận lại',   cls: 'badge-nhan-lai'  },
+  'tach':     { label: 'Tách vụ',    cls: 'badge-tach'      },
+  'dinh-chi': { label: 'Đình chỉ',   cls: 'badge-dinh-chi-dt'},
 };
 
-function getBadge(status) {
-  const s = STATUS[status] || { label: status, cls: '', icon: '' };
-  return `<span class="badge ${s.cls}">${s.icon}${s.label}</span>`;
+const TT_STATUS = {
+  'de-nghi':   { label: 'Đề nghị TT',    cls: 'badge-de-nghi' },
+  'cho-pc':    { label: 'Chờ phê chuẩn', cls: 'badge-cho-pc'  },
+  'truy-to':   { label: 'Đã truy tố',    cls: 'badge-truy-to' },
+  'dinh-chi':  { label: 'Đình chỉ',      cls: 'badge-dinh-chi'},
+  'tam-dinh-chi':{ label: 'Tạm đình chỉ', cls: 'badge-cho-pc' },
+};
+
+const XX_STATUS = {
+  'dang-xx':    { label: 'Đang xét xử',   cls: 'badge-dang-xx'    },
+  'da-xet-xu':  { label: 'Đã xét xử',     cls: 'badge-da-xx'      },
+  'giai-quyet': { label: 'Đã giải quyết', cls: 'badge-giai-quyet' },
+};
+
+function getBadgeDT(s) { return _badge(DT_STATUS[s], s); }
+function getBadgeTT(s) { return _badge(TT_STATUS[s], s); }
+function getBadgeXX(s) { return _badge(XX_STATUS[s], s); }
+
+function _badge(cfg, raw) {
+  if (!cfg) return `<span class="badge" style="color:var(--gray)">${raw || '—'}</span>`;
+  return `<span class="badge ${cfg.cls}">${cfg.label}</span>`;
 }
 
-function getStatusLabel(s) {
-  return STATUS[s]?.label || s;
+// ══════════════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════════════
+function render() {
+  updateTabCounts();
+  renderPhase(currentPhase);
 }
 
-// ── RENDER ─────────────────────────────────────────────────
-function getFilteredData() {
-  const q    = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
-  const sort = document.getElementById('sort-select')?.value || 'date-desc';
+function updateTabCounts() {
+  const dt = db.vuAns.filter(v => v.giaiDoan === 'dieu-tra').length;
+  const tt = db.vuAns.filter(v => v.giaiDoan === 'truy-to').length;
+  const xx = db.vuAns.filter(v => v.giaiDoan === 'xet-xu').length;
+  setEl('count-dt', dt);
+  setEl('count-tt', tt);
+  setEl('count-xx', xx);
 
-  let data = [...db.vuAns];
+  // Sidebar badges
+  setEl('sb-dt', dt);
+  setEl('sb-tt', tt);
+  setEl('sb-xx', xx);
+}
 
-  if (currentFilter !== 'all') {
-    data = data.filter(v => v.trangThai === currentFilter);
-  }
+function renderPhase(phase) {
+  const q      = searchMap[phase]?.toLowerCase() || '';
+  const filter = filterMap[phase] || 'all';
 
-  if (q) {
+  let data = db.vuAns.filter(v => v.giaiDoan === phase);
+
+  // Apply sub-filter
+  if (filter !== 'all') {
     data = data.filter(v => {
-      const bcStr = (v.biCans || []).map(b => b.ten.toLowerCase()).join(' ');
-      return v.soVu.toLowerCase().includes(q)
-          || v.toiDanh.toLowerCase().includes(q)
-          || bcStr.includes(q)
-          || (v.ksv || '').toLowerCase().includes(q)
-          || (v.dieuKhoan || '').toLowerCase().includes(q);
+      if (phase === 'dieu-tra') return v.dieuTra?.trangThai === filter;
+      if (phase === 'truy-to')  return v.truyTo?.trangThai  === filter || v.truyTo?.ketQua === filter;
+      if (phase === 'xet-xu')   return v.xetXu?.trangThai   === filter || v.xetXu?.ketQua === filter;
     });
   }
 
-  const sortFns = {
-    'date-desc': (a, b) => new Date(b.ngayKhoiTo || 0) - new Date(a.ngayKhoiTo || 0),
-    'date-asc':  (a, b) => new Date(a.ngayKhoiTo || 0) - new Date(b.ngayKhoiTo || 0),
-    'so-vu':     (a, b) => a.soVu.localeCompare(b.soVu),
-    'status':    (a, b) => a.trangThai.localeCompare(b.trangThai),
-  };
+  // Apply search
+  if (q) {
+    data = data.filter(v =>
+      v.dl.toLowerCase().includes(q) ||
+      v.tenBiCan.toLowerCase().includes(q) ||
+      (v.dieuLuat || '').toLowerCase().includes(q) ||
+      (v.ksv || '').toLowerCase().includes(q)
+    );
+  }
 
-  data.sort(sortFns[sort] || sortFns['date-desc']);
-  return data;
-}
+  renderStats(phase, data);
 
-function renderTable() {
-  updateStats();
-
-  const data  = getFilteredData();
-  const tbody = document.getElementById('table-body');
-  const empty = document.getElementById('empty-state');
+  const tbody = document.getElementById(`tbody-${phase}`);
+  const empty = document.getElementById(`empty-${phase}`);
+  if (!tbody) return;
 
   if (!data.length) {
     tbody.innerHTML = '';
-    empty.style.display = 'block';
+    if (empty) empty.style.display = 'block';
     return;
   }
+  if (empty) empty.style.display = 'none';
 
-  empty.style.display = 'none';
-
-  tbody.innerHTML = data.map((v, i) => {
-    const bcStr     = (v.biCans || []).map(b => b.ten).join(', ') || '—';
-    const bcDisplay = bcStr.length > 28 ? bcStr.slice(0, 28) + '…' : bcStr;
-    const badge     = getBadge(v.trangThai);
-    const ngay      = formatDate(v.ngayKhoiTo);
-    const han       = formatDate(v.hanDieuTra);
-    const expiring  = v.hanDieuTra && getDaysLeft(v.hanDieuTra) <= 7 && v.trangThai === 'dieu-tra';
-    const hanHtml   = han
-      ? `<span style="color:${expiring ? 'var(--red)' : 'inherit'}">${han}${expiring ? ' ⚠' : ''}</span>`
-      : '—';
-
-    return `
-    <tr onclick="openDetail('${v.id}')">
-      <td style="color:var(--gray);font-size:12px">${i + 1}</td>
-      <td class="so-vu">${escHtml(v.soVu)}</td>
-      <td class="bi-can" title="${escHtml(bcStr)}">${escHtml(bcDisplay)}</td>
-      <td class="toi-danh">${escHtml(v.toiDanh)}</td>
-      <td>${ngay || '—'}</td>
-      <td>${hanHtml}</td>
-      <td>${badge}</td>
-      <td style="font-size:12px;color:var(--text2)">${escHtml(v.ksv || '—')}</td>
-      <td onclick="event.stopPropagation()">
-        <div class="action-btns">
-          <button class="btn btn-ghost btn-sm" title="Chỉnh sửa" onclick="openEdit('${v.id}')">${ICONS.edit}</button>
-          <button class="btn btn-danger btn-sm" title="Xóa" onclick="confirmDelete('${v.id}')">${ICONS.trash}</button>
-        </div>
-      </td>
-    </tr>`;
-  }).join('');
+  tbody.innerHTML = data.map((v, i) => renderRow(v, i, phase)).join('');
 }
 
-function updateStats() {
-  const all   = db.vuAns;
-  const count = s => all.filter(v => v.trangThai === s).length;
+function renderStats(phase, filtered) {
+  const all = db.vuAns.filter(v => v.giaiDoan === phase);
 
-  const stats = {
-    all:           all.length,
-    'dieu-tra':    count('dieu-tra'),
-    'de-nghi':     count('de-nghi'),
-    'truy-to':     count('truy-to'),
-    'dinh-chi':    count('dinh-chi'),
-    'tam-dinh-chi':count('tam-dinh-chi'),
-  };
+  if (phase === 'dieu-tra') {
+    setEl('stat-dt-all',    all.length);
+    setEl('stat-dt-moi',    all.filter(v => v.dieuTra?.trangThai === 'moi').length);
+    setEl('stat-dt-nhanLai',all.filter(v => v.dieuTra?.trangThai === 'nhan-lai').length);
+    setEl('stat-dt-dinh',   all.filter(v => v.dieuTra?.trangThai === 'dinh-chi').length);
+  }
+  if (phase === 'truy-to') {
+    setEl('stat-tt-all',   all.length);
+    setEl('stat-tt-denghi',all.filter(v => v.truyTo?.ketQua === 'de-nghi' || v.truyTo?.trangThai === 'de-nghi').length);
+    setEl('stat-tt-tt',    all.filter(v => v.truyTo?.ketQua === 'truy-to' || v.truyTo?.trangThai === 'truy-to').length);
+    setEl('stat-tt-dinh',  all.filter(v => v.truyTo?.ketQua === 'dinh-chi' || v.truyTo?.trangThai === 'dinh-chi').length);
+  }
+  if (phase === 'xet-xu') {
+    setEl('stat-xx-all',   all.length);
+    setEl('stat-xx-dang',  all.filter(v => v.xetXu?.trangThai === 'dang-xx').length);
+    setEl('stat-xx-done',  all.filter(v => v.xetXu?.trangThai === 'da-xet-xu' || v.xetXu?.trangThai === 'giai-quyet').length);
+  }
+}
 
-  Object.entries(stats).forEach(([k, v]) => {
-    const el = document.getElementById(`stat-${k}`);
-    if (el) el.textContent = v;
-    const b = document.getElementById(`badge-${k}`);
-    if (b) b.textContent = v;
-  });
+function renderRow(v, i, phase) {
+  const expiring = phase === 'dieu-tra' && v.dieuTra?.hanDieuTra && getDaysLeft(v.dieuTra.hanDieuTra) <= 7;
+  const hanHtml = formatDate(v.dieuTra?.hanDieuTra)
+    ? `<span style="color:${expiring ? 'var(--red)' : 'inherit'}">${formatDate(v.dieuTra.hanDieuTra)}${expiring ? ' ⚠' : ''}</span>`
+    : '—';
 
-  // Active card highlight
-  document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active-filter'));
-  const cardMap = { all:'card-all','dieu-tra':'card-dieu-tra','de-nghi':'card-de-nghi','truy-to':'card-truy-to','dinh-chi':'card-dinh-chi' };
-  const activeCard = document.getElementById(cardMap[currentFilter]);
-  if (activeCard) activeCard.classList.add('active-filter');
+  let statusBadge = '';
+  let extraCol    = '';
+  let advanceBtn  = '';
 
-  // Active nav btn
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  const activeNav = document.querySelector(`.nav-btn[data-filter="${currentFilter}"]`);
+  if (phase === 'dieu-tra') {
+    statusBadge = getBadgeDT(v.dieuTra?.trangThai);
+    extraCol    = `<td>${hanHtml}</td>`;
+    advanceBtn  = `<button class="btn-advance dt" onclick="event.stopPropagation(); openAdvance('${v.id}','truy-to')" title="Chuyển sang Truy tố">${IC.arrow} Truy tố</button>`;
+  } else if (phase === 'truy-to') {
+    statusBadge = getBadgeTT(v.truyTo?.trangThai);
+    extraCol    = `<td>${formatDate(v.truyTo?.ngayDeNghi) || '—'}</td>`;
+    advanceBtn  = `<button class="btn-advance tt" onclick="event.stopPropagation(); openAdvance('${v.id}','xet-xu')" title="Chuyển sang Xét xử">${IC.arrow} Xét xử</button>`;
+  } else if (phase === 'xet-xu') {
+    statusBadge = getBadgeXX(v.xetXu?.trangThai);
+    extraCol    = `<td>${formatDate(v.xetXu?.ngayXetXu) || '—'}</td>`;
+    advanceBtn  = '';
+  }
+
+  return `
+  <tr onclick="openDetail('${v.id}')">
+    <td style="color:var(--gray);font-size:11px">${i + 1}</td>
+    <td class="dl-col">${escHtml(v.dl)}</td>
+    <td class="name-col">${escHtml(v.tenBiCan)}${v.namSinh ? `<div style="font-size:10.5px;color:var(--text3);font-weight:400">${v.namSinh}</div>` : ''}</td>
+    <td class="law-col">${escHtml(v.dieuLuat || '—')}</td>
+    <td class="ksv-col">${escHtml(v.ksv || '—')}</td>
+    ${extraCol}
+    <td>${statusBadge}</td>
+    <td onclick="event.stopPropagation()">
+      <div class="action-btns" style="flex-wrap:wrap;gap:4px;">
+        ${advanceBtn}
+        <button class="btn btn-ghost btn-sm" title="Sửa" onclick="openEdit('${v.id}')">${IC.edit}</button>
+        <button class="btn btn-danger btn-sm" title="Xóa" onclick="confirmDelete('${v.id}')">${IC.trash}</button>
+      </div>
+    </td>
+  </tr>`;
+}
+
+// ══════════════════════════════════════════════════════════
+// PHASE SWITCHING
+// ══════════════════════════════════════════════════════════
+function switchPhase(phase) {
+  currentPhase = phase;
+
+  // Update phase tab buttons
+  document.querySelectorAll('.phase-tab').forEach(b => b.classList.remove('active'));
+  const activeTab = document.getElementById(`phase-tab-${phase}`);
+  if (activeTab) activeTab.classList.add('active');
+
+  // Update sidebar buttons
+  document.querySelectorAll('.nav-btn[data-phase]').forEach(b => b.classList.remove('active'));
+  const activeNav = document.querySelector(`.nav-btn[data-phase="${phase}"]`);
   if (activeNav) activeNav.classList.add('active');
+
+  // Show correct panel
+  document.querySelectorAll('.phase-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(`panel-${phase}`)?.classList.add('active');
+
+  renderPhase(phase);
 }
 
-function filterByStatus(status) {
-  currentFilter = status;
-  const titles = {
-    all: 'Tất cả vụ án',
-    'dieu-tra': 'Đang điều tra',
-    'de-nghi': 'Đề nghị truy tố',
-    'truy-to': 'Đã truy tố',
-    'dinh-chi': 'Đình chỉ',
-    'tam-dinh-chi': 'Tạm đình chỉ',
-  };
-  const el = document.getElementById('page-title');
-  if (el) el.textContent = titles[status] || status;
-  renderTable();
+function setPhaseFilter(phase, value) {
+  filterMap[phase] = value;
+  renderPhase(phase);
+  // Update active pill
+  document.querySelectorAll(`#panel-${phase} .stat-pill`).forEach(p => p.classList.remove('active-filter'));
+  event.currentTarget?.closest('.stat-pill')?.classList.add('active-filter');
 }
 
-// ── FORM ───────────────────────────────────────────────────
-function openAddModal() {
+function onSearch(phase) {
+  searchMap[phase] = document.getElementById(`search-${phase}`)?.value || '';
+  renderPhase(phase);
+}
+
+// ══════════════════════════════════════════════════════════
+// ADD / EDIT FORM
+// ══════════════════════════════════════════════════════════
+function openAdd() {
   editingId = null;
-  setModalTitle('modal-form', 'Thêm vụ án mới', 'Nhập thông tin vụ án mới');
+  document.getElementById('f-phase').value = currentPhase;
   clearForm();
-  addBiCanRow();
+  document.getElementById('modal-form-title').textContent = 'Thêm vụ án mới';
+  document.getElementById('modal-form-subtitle').textContent = 'Tạo ID DL tự động';
+  updateFormPhaseFields();
   showModal('modal-form');
 }
 
@@ -219,403 +299,505 @@ function openEdit(id) {
   const v = db.vuAns.find(x => x.id === id);
   if (!v) return;
   editingId = id;
-  setModalTitle('modal-form', 'Chỉnh sửa vụ án', v.soVu);
   fillForm(v);
+  document.getElementById('modal-form-title').textContent = 'Chỉnh sửa vụ án';
+  document.getElementById('modal-form-subtitle').textContent = v.dl + ' — ' + v.tenBiCan;
+  updateFormPhaseFields();
   showModal('modal-form');
 }
 
-function openEditFromDetail() {
-  closeModal('modal-detail');
-  openEdit(currentDetailId);
-}
-
-function setModalTitle(modalId, title, subtitle) {
-  const t = document.getElementById(`${modalId}-title`);
-  const s = document.getElementById(`${modalId}-subtitle`);
-  if (t) t.textContent = title;
-  if (s) s.textContent = subtitle || '';
-}
-
 function clearForm() {
-  ['f-so-vu','f-toi-danh','f-dieu-khoan','f-ksv','f-ngay-khoi-to','f-han-dt','f-ngay-de-nghi','f-ghi-chu'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.value = '';
-  });
-  const sel = document.getElementById('f-trang-thai');
-  if (sel) sel.value = 'dieu-tra';
-  biCanRowIdx = 0;
-  const rows = document.getElementById('bi-can-rows');
-  if (rows) rows.innerHTML = '';
+  const ids = ['f-ten','f-namsinh','f-cccd','f-diachi','f-dieuluat','f-ksv','f-ghichu',
+    'f-dt-ngaykhoi','f-dt-han','f-dt-cqdt','f-dt-ghichu',
+    'f-tt-ngaydn','f-tt-ngayqd','f-tt-ghichu',
+    'f-xx-ngayxx','f-xx-toa','f-xx-ghichu'];
+  ids.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  const sel = ['f-dt-trangthai','f-tt-trangthai','f-tt-ketqua','f-xx-trangthai','f-xx-ketqua'];
+  sel.forEach(id => { const el = document.getElementById(id); if (el) el.selectedIndex = 0; });
 }
 
 function fillForm(v) {
-  const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
-  set('f-so-vu',       v.soVu);
-  set('f-toi-danh',    v.toiDanh);
-  set('f-dieu-khoan',  v.dieuKhoan);
-  set('f-trang-thai',  v.trangThai);
-  set('f-ksv',         v.ksv);
-  set('f-ngay-khoi-to',v.ngayKhoiTo);
-  set('f-han-dt',      v.hanDieuTra);
-  set('f-ngay-de-nghi',v.ngayDeNghi);
-  set('f-ghi-chu',     v.ghiChu);
+  document.getElementById('f-phase').value = v.giaiDoan;
+  setVal('f-ten',   v.tenBiCan);
+  setVal('f-namsinh', v.namSinh);
+  setVal('f-cccd',  v.cccd);
+  setVal('f-diachi',v.diaChi);
+  setVal('f-dieuluat', v.dieuLuat);
+  setVal('f-ksv',   v.ksv);
+  setVal('f-ghichu',v.ghiChu);
 
-  biCanRowIdx = 0;
-  const rows = document.getElementById('bi-can-rows');
-  if (rows) rows.innerHTML = '';
-  (v.biCans || []).forEach(bc => addBiCanRow(bc));
-  if (!v.biCans || !v.biCans.length) addBiCanRow();
+  if (v.dieuTra) {
+    setVal('f-dt-trangthai', v.dieuTra.trangThai);
+    setVal('f-dt-ngaykhoi',  v.dieuTra.ngayKhoiTo);
+    setVal('f-dt-han',       v.dieuTra.hanDieuTra);
+    setVal('f-dt-cqdt',      v.dieuTra.coQuanDieuTra);
+    setVal('f-dt-ghichu',    v.dieuTra.ghiChu);
+  }
+  if (v.truyTo) {
+    setVal('f-tt-trangthai', v.truyTo.trangThai);
+    setVal('f-tt-ketqua',    v.truyTo.ketQua);
+    setVal('f-tt-ngaydn',    v.truyTo.ngayDeNghi);
+    setVal('f-tt-ngayqd',    v.truyTo.ngayQuyetDinh);
+    setVal('f-tt-ghichu',    v.truyTo.ghiChu);
+  }
+  if (v.xetXu) {
+    setVal('f-xx-trangthai', v.xetXu.trangThai);
+    setVal('f-xx-ketqua',    v.xetXu.ketQua);
+    setVal('f-xx-ngayxx',    v.xetXu.ngayXetXu);
+    setVal('f-xx-toa',       v.xetXu.toaAn);
+    setVal('f-xx-ghichu',    v.xetXu.ghiChu);
+  }
+  updateFormPhaseFields();
 }
 
-function addBiCanRow(bc) {
-  const idx = biCanRowIdx++;
-  const row = document.createElement('div');
-  row.className = 'bi-can-item';
-  row.id = `bc-row-${idx}`;
-  row.innerHTML = `
-    <input class="form-control" placeholder="Họ tên bị can *" id="bc-ten-${idx}" value="${escAttr(bc?.ten || '')}">
-    <input class="form-control" placeholder="Năm sinh" id="bc-ns-${idx}" value="${escAttr(bc?.namSinh || '')}">
-    <input class="form-control" placeholder="CCCD / Ghi chú" id="bc-info-${idx}" value="${escAttr(bc?.cccd || '')}">
-    <button class="remove-bc" title="Xóa bị can" onclick="removeBiCanRow(${idx})">${ICONS.x}</button>
-  `;
-  document.getElementById('bi-can-rows')?.appendChild(row);
-}
-
-function removeBiCanRow(idx) {
-  document.getElementById(`bc-row-${idx}`)?.remove();
-}
-
-function collectBiCans() {
-  const result = [];
-  document.querySelectorAll('#bi-can-rows .bi-can-item').forEach(row => {
-    const idx = row.id.replace('bc-row-', '');
-    const ten = document.getElementById(`bc-ten-${idx}`)?.value?.trim();
-    if (ten) {
-      result.push({
-        ten,
-        namSinh: document.getElementById(`bc-ns-${idx}`)?.value?.trim() || '',
-        cccd:    document.getElementById(`bc-info-${idx}`)?.value?.trim() || '',
-      });
-    }
+function updateFormPhaseFields() {
+  const phase = document.getElementById('f-phase')?.value || 'dieu-tra';
+  ['f-section-dt','f-section-tt','f-section-xx'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.display = 'block';
+    el.style.opacity = '1';
   });
-  return result;
+  // Dim phases not reached yet
+  const order = ['dieu-tra','truy-to','xet-xu'];
+  const idx   = order.indexOf(editingId ? (db.vuAns.find(v=>v.id===editingId)?.giaiDoan||phase) : phase);
+  ['f-section-tt','f-section-xx'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (el) el.style.opacity = (i+1 <= idx) ? '1' : '0.4';
+  });
 }
 
-function saveVuAn() {
-  const soVu    = document.getElementById('f-so-vu')?.value?.trim();
-  const toiDanh = document.getElementById('f-toi-danh')?.value?.trim();
+async function saveVuAn() {
+  const ten     = getVal('f-ten')?.trim();
+  const dieuluat= getVal('f-dieuluat')?.trim();
+  if (!ten)      { showToast('Vui lòng nhập tên bị can!', 'error'); return; }
+  if (!dieuluat) { showToast('Vui lòng nhập điều luật!', 'error'); return; }
 
-  if (!soVu)    { showToast('Vui lòng nhập số vụ án!', 'error'); return; }
-  if (!toiDanh) { showToast('Vui lòng nhập tội danh!', 'error'); return; }
+  const now   = new Date().toISOString();
+  const phase = document.getElementById('f-phase')?.value || 'dieu-tra';
 
-  const biCans   = collectBiCans();
-  const now      = new Date().toISOString();
-  const trangThai = document.getElementById('f-trang-thai')?.value;
-
-  const data = {
-    soVu, toiDanh, trangThai,
-    dieuKhoan:  document.getElementById('f-dieu-khoan')?.value?.trim() || '',
-    ksv:        document.getElementById('f-ksv')?.value?.trim() || '',
-    ngayKhoiTo: document.getElementById('f-ngay-khoi-to')?.value || '',
-    hanDieuTra: document.getElementById('f-han-dt')?.value || '',
-    ngayDeNghi: document.getElementById('f-ngay-de-nghi')?.value || '',
-    ghiChu:     document.getElementById('f-ghi-chu')?.value?.trim() || '',
-    biCans,
+  const dieuTra = {
+    trangThai:      getVal('f-dt-trangthai') || 'moi',
+    ngayKhoiTo:     getVal('f-dt-ngaykhoi') || '',
+    hanDieuTra:     getVal('f-dt-han') || '',
+    coQuanDieuTra:  getVal('f-dt-cqdt') || '',
+    ghiChu:         getVal('f-dt-ghichu') || '',
   };
 
   if (editingId) {
     const idx = db.vuAns.findIndex(v => v.id === editingId);
-    if (idx !== -1) {
-      const old = db.vuAns[idx];
-      if (!old.history) old.history = [];
-      if (old.trangThai !== trangThai) {
-        old.history.push({ ts: now, text: `Đổi trạng thái: ${getStatusLabel(old.trangThai)} → ${getStatusLabel(trangThai)}` });
-      }
-      old.history.push({ ts: now, text: 'Cập nhật thông tin vụ án' });
-      db.vuAns[idx] = { ...old, ...data, updatedAt: now };
-    }
+    if (idx === -1) return;
+    const old = db.vuAns[idx];
+    if (!old.history) old.history = [];
+    old.history.push({ ts: now, text: 'Cập nhật thông tin vụ án' });
+
+    db.vuAns[idx] = {
+      ...old,
+      tenBiCan: ten,
+      namSinh:  getVal('f-namsinh') || '',
+      cccd:     getVal('f-cccd') || '',
+      diaChi:   getVal('f-diachi') || '',
+      dieuLuat: dieuluat,
+      ksv:      getVal('f-ksv') || '',
+      ghiChu:   getVal('f-ghichu') || '',
+      dieuTra,
+      truyTo: old.truyTo ? {
+        ...old.truyTo,
+        trangThai:      getVal('f-tt-trangthai') || old.truyTo.trangThai,
+        ketQua:         getVal('f-tt-ketqua')    || old.truyTo.ketQua,
+        ngayDeNghi:     getVal('f-tt-ngaydn')    || old.truyTo.ngayDeNghi,
+        ngayQuyetDinh:  getVal('f-tt-ngayqd')    || old.truyTo.ngayQuyetDinh,
+        ghiChu:         getVal('f-tt-ghichu')    || old.truyTo.ghiChu,
+      } : null,
+      xetXu: old.xetXu ? {
+        ...old.xetXu,
+        trangThai:  getVal('f-xx-trangthai') || old.xetXu.trangThai,
+        ketQua:     getVal('f-xx-ketqua')    || old.xetXu.ketQua,
+        ngayXetXu:  getVal('f-xx-ngayxx')   || old.xetXu.ngayXetXu,
+        toaAn:      getVal('f-xx-toa')       || old.xetXu.toaAn,
+        ghiChu:     getVal('f-xx-ghichu')    || old.xetXu.ghiChu,
+      } : null,
+      updatedAt: now,
+    };
     showToast('Đã cập nhật vụ án!', 'success');
   } else {
+    const dl = genDL();
     db.vuAns.push({
       id: 'va_' + Date.now(),
-      ...data,
-      createdAt: now, updatedAt: now,
+      dl, tenBiCan: ten,
+      namSinh:  getVal('f-namsinh') || '',
+      cccd:     getVal('f-cccd') || '',
+      diaChi:   getVal('f-diachi') || '',
+      dieuLuat: dieuluat,
+      ksv:      getVal('f-ksv') || '',
+      ghiChu:   getVal('f-ghichu') || '',
+      giaiDoan: 'dieu-tra',
+      dieuTra,
+      truyTo: null, xetXu: null,
       notes: [],
-      history: [{ ts: now, text: 'Tạo mới vụ án' }],
+      history: [{ ts: now, text: 'Tạo vụ án mới — giai đoạn Điều tra' }],
+      createdAt: now, updatedAt: now,
     });
     showToast('Đã thêm vụ án mới!', 'success');
   }
 
-  saveData(db);
+  await saveDB();
   closeModal('modal-form');
-  renderTable();
+  render();
 }
 
-// ── DETAIL ─────────────────────────────────────────────────
+function genDL() {
+  const max = db.vuAns.reduce((m, v) => {
+    const n = parseInt((v.dl || '').replace(/\D/g, '')) || 0;
+    return Math.max(m, n);
+  }, 0);
+  return 'DL' + String(max + 1).padStart(3, '0');
+}
+
+// ══════════════════════════════════════════════════════════
+// ADVANCE PHASE (the core feature)
+// ══════════════════════════════════════════════════════════
+function openAdvance(id, targetPhase) {
+  const v = db.vuAns.find(x => x.id === id);
+  if (!v) return;
+  currentDetailId = id;
+
+  const phaseLabel = { 'truy-to': 'Truy tố', 'xet-xu': 'Xét xử' }[targetPhase];
+  document.getElementById('adv-title').textContent = `Chuyển sang giai đoạn ${phaseLabel}`;
+  document.getElementById('adv-subtitle').textContent = `${v.dl} — ${v.tenBiCan}`;
+
+  // Show/hide relevant fields
+  document.getElementById('adv-tt-fields').style.display = targetPhase === 'truy-to' ? 'block' : 'none';
+  document.getElementById('adv-xx-fields').style.display = targetPhase === 'xet-xu'  ? 'block' : 'none';
+
+  // Clear fields
+  ['adv-tt-trangthai','adv-tt-ketqua','adv-tt-ngaydn','adv-tt-ngayqd','adv-tt-ghichu',
+   'adv-xx-trangthai','adv-xx-ketqua','adv-xx-ngayxx','adv-xx-toa','adv-xx-ghichu'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { if (el.tagName === 'SELECT') el.selectedIndex = 0; else el.value = ''; }
+  });
+
+  document.getElementById('btn-confirm-advance').onclick = () => confirmAdvance(id, targetPhase);
+  showModal('modal-advance');
+}
+
+async function confirmAdvance(id, targetPhase) {
+  const v   = db.vuAns.find(x => x.id === id);
+  if (!v) return;
+  const now = new Date().toISOString();
+
+  if (targetPhase === 'truy-to') {
+    v.truyTo = {
+      trangThai:      getVal('adv-tt-trangthai') || 'de-nghi',
+      ketQua:         getVal('adv-tt-ketqua')    || 'de-nghi',
+      ngayDeNghi:     getVal('adv-tt-ngaydn')    || '',
+      ngayQuyetDinh:  getVal('adv-tt-ngayqd')    || '',
+      ghiChu:         getVal('adv-tt-ghichu')    || '',
+    };
+    v.giaiDoan = 'truy-to';
+    v.history.push({ ts: now, text: '→ Chuyển sang giai đoạn Truy tố' });
+    showToast(`✅ ${v.dl} đã chuyển sang tab Truy tố!`, 'success');
+  } else if (targetPhase === 'xet-xu') {
+    v.xetXu = {
+      trangThai:  getVal('adv-xx-trangthai') || 'dang-xx',
+      ketQua:     getVal('adv-xx-ketqua')    || 'dang-xx',
+      ngayXetXu:  getVal('adv-xx-ngayxx')   || '',
+      toaAn:      getVal('adv-xx-toa')       || '',
+      ghiChu:     getVal('adv-xx-ghichu')    || '',
+    };
+    v.giaiDoan = 'xet-xu';
+    v.history.push({ ts: now, text: '→ Chuyển sang giai đoạn Xét xử' });
+    showToast(`✅ ${v.dl} đã chuyển sang tab Xét xử!`, 'success');
+  }
+
+  v.updatedAt = now;
+  await saveDB();
+  closeModal('modal-advance');
+  closeModal('modal-detail');
+
+  // Auto-switch to target tab
+  setTimeout(() => switchPhase(targetPhase), 300);
+}
+
+// ══════════════════════════════════════════════════════════
+// DETAIL
+// ══════════════════════════════════════════════════════════
 function openDetail(id) {
   const v = db.vuAns.find(x => x.id === id);
   if (!v) return;
   currentDetailId = id;
 
-  setModalTitle('modal-detail', v.soVu, v.toiDanh + (v.dieuKhoan ? ' — ' + v.dieuKhoan : ''));
+  document.getElementById('detail-title').textContent    = v.dl;
+  document.getElementById('detail-subtitle').textContent = `${v.tenBiCan} — ${v.dieuLuat}`;
 
-  // Info grid
-  document.getElementById('detail-grid').innerHTML = `
-    <div class="detail-item"><div class="detail-label">Trạng thái</div><div class="detail-value" style="margin-top:4px">${getBadge(v.trangThai)}</div></div>
-    <div class="detail-item"><div class="detail-label">KSV phụ trách</div><div class="detail-value">${escHtml(v.ksv || '—')}</div></div>
-    <div class="detail-item"><div class="detail-label">Ngày khởi tố</div><div class="detail-value">${formatDate(v.ngayKhoiTo) || '—'}</div></div>
-    <div class="detail-item"><div class="detail-label">Hạn điều tra</div><div class="detail-value">${formatDate(v.hanDieuTra) || '—'}</div></div>
-    <div class="detail-item"><div class="detail-label">Ngày đề nghị TT</div><div class="detail-value">${formatDate(v.ngayDeNghi) || '—'}</div></div>
-    <div class="detail-item"><div class="detail-label">Số bị can</div><div class="detail-value">${(v.biCans || []).length} người</div></div>
-    ${v.ghiChu ? `<div class="detail-item" style="grid-column:1/-1"><div class="detail-label">Ghi chú</div><div class="detail-value" style="color:var(--text2)">${escHtml(v.ghiChu)}</div></div>` : ''}
+  // Journey
+  const order  = ['dieu-tra','truy-to','xet-xu'];
+  const curIdx = order.indexOf(v.giaiDoan);
+  const journey = document.getElementById('detail-journey');
+  journey.innerHTML = [
+    { phase:'dieu-tra', label:'Điều tra', icon: IC.dt_icon, date: v.dieuTra?.ngayKhoiTo },
+    { phase:'truy-to',  label:'Truy tố',  icon: IC.tt_icon, date: v.truyTo?.ngayDeNghi  },
+    { phase:'xet-xu',   label:'Xét xử',   icon: IC.xx_icon, date: v.xetXu?.ngayXetXu    },
+  ].map((s, i) => {
+    const cls = i < curIdx ? 'done' : i === curIdx ? 'current' : 'pending';
+    const dotIcon = cls === 'done' ? IC.check : s.icon;
+    return `
+    <div class="journey-step ${cls}">
+      <div class="journey-dot">${dotIcon}</div>
+      <div class="journey-label">${s.label}</div>
+      <div class="journey-sub">${formatDate(s.date) || ''}</div>
+    </div>`;
+  }).join('');
+
+  // Tổng quan tab
+  document.getElementById('detail-info').innerHTML = `
+    <div class="detail-grid" style="margin-bottom:16px">
+      <div class="detail-item"><div class="detail-label">Mã DL</div><div class="detail-value" style="font-family:monospace;color:var(--accent);font-weight:700">${escHtml(v.dl)}</div></div>
+      <div class="detail-item"><div class="detail-label">Giai đoạn hiện tại</div><div class="detail-value" style="margin-top:3px">${phaseLabel(v.giaiDoan)}</div></div>
+      <div class="detail-item"><div class="detail-label">Họ tên bị can</div><div class="detail-value">${escHtml(v.tenBiCan)}</div></div>
+      <div class="detail-item"><div class="detail-label">Năm sinh / CCCD</div><div class="detail-value">${escHtml(v.namSinh||'—')} ${v.cccd?'/ '+v.cccd:''}</div></div>
+      <div class="detail-item"><div class="detail-label">Điều luật</div><div class="detail-value">${escHtml(v.dieuLuat||'—')}</div></div>
+      <div class="detail-item"><div class="detail-label">KSV phụ trách</div><div class="detail-value">${escHtml(v.ksv||'—')}</div></div>
+      ${v.ghiChu?`<div class="detail-item" style="grid-column:1/-1"><div class="detail-label">Ghi chú</div><div class="detail-value" style="color:var(--text2)">${escHtml(v.ghiChu)}</div></div>`:''}
+    </div>
+
+    <div class="phase-section dt">
+      <div class="phase-section-header">${IC.dt_icon} Giai đoạn Điều tra</div>
+      <div class="phase-section-grid">
+        <div class="phase-field"><div class="phase-field-label">Trạng thái</div><div>${getBadgeDT(v.dieuTra?.trangThai)}</div></div>
+        <div class="phase-field"><div class="phase-field-label">Ngày khởi tố</div><div class="phase-field-value">${formatDate(v.dieuTra?.ngayKhoiTo)||'—'}</div></div>
+        <div class="phase-field"><div class="phase-field-label">Hạn điều tra</div><div class="phase-field-value">${formatDate(v.dieuTra?.hanDieuTra)||'—'}</div></div>
+        <div class="phase-field"><div class="phase-field-label">CQ điều tra</div><div class="phase-field-value">${escHtml(v.dieuTra?.coQuanDieuTra||'—')}</div></div>
+      </div>
+    </div>
+
+    <div class="phase-section tt ${!v.truyTo?'pending':''}">
+      <div class="phase-section-header">${IC.tt_icon} Giai đoạn Truy tố ${!v.truyTo?'<span style="color:var(--text3);font-weight:400;margin-left:6px;font-size:10px">(chưa có)</span>':''}</div>
+      ${v.truyTo?`
+      <div class="phase-section-grid">
+        <div class="phase-field"><div class="phase-field-label">Trạng thái</div><div>${getBadgeTT(v.truyTo.trangThai)}</div></div>
+        <div class="phase-field"><div class="phase-field-label">Kết quả</div><div>${getBadgeTT(v.truyTo.ketQua)}</div></div>
+        <div class="phase-field"><div class="phase-field-label">Ngày đề nghị</div><div class="phase-field-value">${formatDate(v.truyTo.ngayDeNghi)||'—'}</div></div>
+        <div class="phase-field"><div class="phase-field-label">Ngày quyết định</div><div class="phase-field-value">${formatDate(v.truyTo.ngayQuyetDinh)||'—'}</div></div>
+        ${v.truyTo.ghiChu?`<div class="phase-field" style="grid-column:1/-1"><div class="phase-field-label">Ghi chú</div><div class="phase-field-value" style="color:var(--text2)">${escHtml(v.truyTo.ghiChu)}</div></div>`:''}
+      </div>`:'<div style="color:var(--text3);font-size:12px">Chưa chuyển sang giai đoạn này</div>'}
+    </div>
+
+    <div class="phase-section xx ${!v.xetXu?'pending':''}">
+      <div class="phase-section-header">${IC.xx_icon} Giai đoạn Xét xử ${!v.xetXu?'<span style="color:var(--text3);font-weight:400;margin-left:6px;font-size:10px">(chưa có)</span>':''}</div>
+      ${v.xetXu?`
+      <div class="phase-section-grid">
+        <div class="phase-field"><div class="phase-field-label">Trạng thái</div><div>${getBadgeXX(v.xetXu.trangThai)}</div></div>
+        <div class="phase-field"><div class="phase-field-label">Kết quả</div><div>${getBadgeXX(v.xetXu.ketQua)}</div></div>
+        <div class="phase-field"><div class="phase-field-label">Ngày xét xử</div><div class="phase-field-value">${formatDate(v.xetXu.ngayXetXu)||'—'}</div></div>
+        <div class="phase-field"><div class="phase-field-label">Toà án</div><div class="phase-field-value">${escHtml(v.xetXu.toaAn||'—')}</div></div>
+        ${v.xetXu.ghiChu?`<div class="phase-field" style="grid-column:1/-1"><div class="phase-field-label">Ghi chú</div><div class="phase-field-value" style="color:var(--text2)">${escHtml(v.xetXu.ghiChu)}</div></div>`:''}
+      </div>`:'<div style="color:var(--text3);font-size:12px">Chưa chuyển sang giai đoạn này</div>'}
+    </div>
   `;
 
-  // Bị can list
-  const bcList = document.getElementById('detail-bican-list');
-  bcList.innerHTML = (v.biCans || []).length === 0
-    ? `<div style="color:var(--text2);font-size:13px;padding:10px 0">Chưa có bị can nào</div>`
-    : (v.biCans || []).map((b, i) => `
-      <div class="bc-detail-item">
-        <div class="bc-avatar">${b.ten.charAt(0).toUpperCase()}</div>
-        <div>
-          <div class="bc-name">${i + 1}. ${escHtml(b.ten)}</div>
-          <div class="bc-info">${[b.namSinh ? 'Sinh ' + b.namSinh : '', b.cccd].filter(Boolean).join(' · ') || 'Chưa có thông tin thêm'}</div>
-        </div>
-      </div>`).join('');
+  // Notes
+  renderDetailNotes(v);
+  // History
+  renderDetailHistory(v);
 
-  renderNotes(v);
-  renderHistory(v);
+  // Reset detail tabs
+  document.querySelectorAll('.detail-tab-btn').forEach((b,i) => b.classList.toggle('active', i===0));
+  document.querySelectorAll('.detail-tab-panel').forEach((p,i) => p.classList.toggle('active', i===0));
 
-  // Reset tabs
-  document.querySelectorAll('#modal-detail .tab-btn').forEach((b, i) => b.classList.toggle('active', i === 0));
-  document.querySelectorAll('#modal-detail .tab-content').forEach((c, i) => c.classList.toggle('active', i === 0));
+  // Advance buttons in footer
+  const advDiv = document.getElementById('detail-advance-btns');
+  if (advDiv) {
+    advDiv.innerHTML = '';
+    if (v.giaiDoan === 'dieu-tra') {
+      advDiv.innerHTML = `<button class="btn-advance dt" onclick="closeModal('modal-detail'); openAdvance('${v.id}','truy-to')">${IC.arrow} Chuyển sang Truy tố</button>`;
+    } else if (v.giaiDoan === 'truy-to') {
+      advDiv.innerHTML = `<button class="btn-advance tt" onclick="closeModal('modal-detail'); openAdvance('${v.id}','xet-xu')">${IC.arrow} Chuyển sang Xét xử</button>`;
+    }
+  }
 
   showModal('modal-detail');
 }
 
-function renderNotes(v) {
-  const list  = document.getElementById('note-list');
-  const notes = (v.notes || []).slice().reverse();
+function phaseLabel(p) {
+  const m = {'dieu-tra':'<span class="badge badge-moi">Điều tra</span>','truy-to':'<span class="badge badge-de-nghi">Truy tố</span>','xet-xu':'<span class="badge badge-da-xx">Xét xử</span>'};
+  return m[p] || p;
+}
+
+function renderDetailNotes(v) {
+  const list = document.getElementById('detail-notes');
+  const notes = (v.notes||[]).slice().reverse();
   list.innerHTML = notes.length
-    ? notes.map(n => `
-      <div class="note-item">
-        <div class="note-text">${escHtml(n.text)}</div>
-        <div class="note-date">${ICONS.clock} ${formatDateTime(n.ts)}</div>
-      </div>`).join('')
-    : `<div style="color:var(--text2);font-size:13px">Chưa có ghi chú nào</div>`;
+    ? notes.map(n=>`<div class="note-item"><div class="note-text">${escHtml(n.text)}</div><div class="note-date">${IC.clock} ${formatDateTime(n.ts)}</div></div>`).join('')
+    : '<div style="color:var(--text3);font-size:12.5px">Chưa có ghi chú</div>';
 }
 
-function renderHistory(v) {
-  const list = document.getElementById('history-list');
-  const hist = (v.history || []).slice().reverse();
+function renderDetailHistory(v) {
+  const list = document.getElementById('detail-history');
+  const hist = (v.history||[]).slice().reverse();
   list.innerHTML = hist.length
-    ? `<div class="hist-list">${hist.map(h => `
-        <div class="hist-item">
-          <div class="hist-dot"></div>
-          <div>
-            <div class="hist-text">${escHtml(h.text)}</div>
-            <div class="hist-time">${formatDateTime(h.ts)}</div>
-          </div>
-        </div>`).join('')}</div>`
-    : `<div style="color:var(--text2);font-size:13px">Chưa có lịch sử</div>`;
+    ? `<div class="hist-list">${hist.map(h=>`<div class="hist-item"><div class="hist-dot"></div><div><div class="hist-text">${escHtml(h.text)}</div><div class="hist-time">${formatDateTime(h.ts)}</div></div></div>`).join('')}</div>`
+    : '<div style="color:var(--text3);font-size:12.5px">Chưa có lịch sử</div>';
 }
 
-function addNote() {
-  const input = document.getElementById('note-input');
+function switchDetailTab(tabId) {
+  const tabs = ['tab-tong-quan','tab-notes','tab-history'];
+  document.querySelectorAll('.detail-tab-btn').forEach((b,i) => b.classList.toggle('active', tabs[i]===tabId));
+  document.querySelectorAll('.detail-tab-panel').forEach(p => p.classList.toggle('active', p.id===tabId));
+}
+
+function addDetailNote() {
+  const input = document.getElementById('detail-note-input');
   const text  = input?.value?.trim();
   if (!text) return;
   const v = db.vuAns.find(x => x.id === currentDetailId);
   if (!v) return;
   if (!v.notes) v.notes = [];
   v.notes.push({ text, ts: new Date().toISOString() });
-  saveData(db);
+  saveDB();
   input.value = '';
-  renderNotes(v);
+  renderDetailNotes(v);
   showToast('Đã thêm ghi chú!', 'success');
 }
 
-function switchTab(tabId) {
-  const tabs    = ['tab-info','tab-bican','tab-note','tab-history'];
-  const btns    = document.querySelectorAll('#modal-detail .tab-btn');
-  btns.forEach((b, i) => b.classList.toggle('active', tabs[i] === tabId));
-  document.querySelectorAll('#modal-detail .tab-content').forEach(c => {
-    c.classList.toggle('active', c.id === tabId);
-  });
-}
-
-// ── DELETE ─────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════
+// DELETE
+// ══════════════════════════════════════════════════════════
 function confirmDelete(id) {
   const v = db.vuAns.find(x => x.id === id);
   if (!v) return;
-  document.getElementById('confirm-name').textContent = `${v.soVu} — ${v.toiDanh}`;
-  document.getElementById('confirm-delete-btn').onclick = () => deleteVuAn(id);
+  document.getElementById('confirm-name').textContent = `${v.dl} — ${v.tenBiCan}`;
+  document.getElementById('btn-confirm-del').onclick = () => doDelete(id);
   showModal('modal-confirm');
 }
 
-function deleteVuAn(id) {
+async function doDelete(id) {
   db.vuAns = db.vuAns.filter(v => v.id !== id);
-  saveData(db);
+  await saveDB();
   closeModal('modal-confirm');
   closeModal('modal-detail');
-  renderTable();
+  render();
   showToast('Đã xóa vụ án!', 'warning');
 }
 
-// ── EXPORT / IMPORT ────────────────────────────────────────
-function exportData() {
-  download(JSON.stringify(db, null, 2), `vu-an-backup-${dateStamp()}.json`, 'application/json');
-  showToast('Đã xuất file backup!', 'success');
+// ══════════════════════════════════════════════════════════
+// EXPORT / IMPORT
+// ══════════════════════════════════════════════════════════
+function exportJSON() {
+  dl(JSON.stringify(db, null, 2), `vu-an-${dateStamp()}.json`, 'application/json');
+  showToast('Đã xuất file JSON!', 'success');
 }
 
-function exportExcel() {
-  const data = getFilteredData();
-  const headers = ['STT','Số vụ án','Bị can','Tội danh','Điều khoản','Ngày khởi tố','Hạn điều tra','Trạng thái','KSV phụ trách','Ghi chú'];
-  const rows = data.map((v, i) => [
-    i + 1, v.soVu,
-    (v.biCans || []).map(b => b.ten).join('; '),
-    v.toiDanh, v.dieuKhoan || '',
-    formatDate(v.ngayKhoiTo) || '',
-    formatDate(v.hanDieuTra) || '',
-    getStatusLabel(v.trangThai),
-    v.ksv || '', v.ghiChu || '',
+function exportCSV() {
+  const headers = ['STT','DL','Tên bị can','Năm sinh','Điều luật','KSV','Ngày khởi tố','Hạn ĐT','Giai đoạn','Trạng thái ĐT','Kết quả TT','Kết quả XX','Ghi chú'];
+  const phaseMap = {'dieu-tra':'Điều tra','truy-to':'Truy tố','xet-xu':'Xét xử'};
+  const rows = db.vuAns.map((v,i) => [
+    i+1, v.dl, v.tenBiCan, v.namSinh||'', v.dieuLuat||'', v.ksv||'',
+    formatDate(v.dieuTra?.ngayKhoiTo)||'',
+    formatDate(v.dieuTra?.hanDieuTra)||'',
+    phaseMap[v.giaiDoan]||v.giaiDoan,
+    DT_STATUS[v.dieuTra?.trangThai]?.label||'',
+    TT_STATUS[v.truyTo?.ketQua]?.label||'',
+    XX_STATUS[v.xetXu?.ketQua]?.label||'',
+    v.ghiChu||'',
   ]);
-
-  const csv = [headers, ...rows]
-    .map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(','))
-    .join('\n');
-
-  download('\ufeff' + csv, `danh-sach-vu-an-${dateStamp()}.csv`, 'text/csv;charset=utf-8');
+  const csv = [headers,...rows].map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  dl('\ufeff'+csv, `vu-an-${dateStamp()}.csv`, 'text/csv;charset=utf-8');
   showToast('Đã xuất CSV!', 'success');
 }
 
-function importData(e) {
+function onImportFile(e) {
   const file = e.target.files?.[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = ev => {
+  reader.onload = async ev => {
     try {
-      const imported = JSON.parse(ev.target.result);
-      if (!imported.vuAns) throw new Error('invalid');
-      if (!confirm(`Nhập ${imported.vuAns.length} vụ án. Dữ liệu hiện tại sẽ bị ghi đè. Tiếp tục?`)) return;
-      db = imported;
-      saveData(db);
-      renderTable();
+      const imp = JSON.parse(ev.target.result);
+      if (!imp.vuAns) throw new Error();
+      if (!confirm(`Nhập ${imp.vuAns.length} vụ án. Dữ liệu hiện tại sẽ bị ghi đè. Tiếp tục?`)) return;
+      db = imp;
+      await saveDB();
+      render();
       closeModal('modal-import');
-      showToast(`Đã nhập ${imported.vuAns.length} vụ án!`, 'success');
-    } catch {
-      showToast('File không đúng định dạng!', 'error');
-    }
+      showToast(`Đã nhập ${imp.vuAns.length} vụ án!`, 'success');
+    } catch { showToast('File không đúng định dạng!', 'error'); }
   };
   reader.readAsText(file);
   e.target.value = '';
 }
 
-function clearAllData() {
-  if (!confirm('XÓA TOÀN BỘ dữ liệu? Hành động này không thể hoàn tác!')) return;
-  db = { vuAns: [], version: 2 };
-  saveData(db);
-  renderTable();
+async function clearAll() {
+  if (!confirm('XÓA TOÀN BỘ dữ liệu? Không thể hoàn tác!')) return;
+  db = { version:3, vuAns:[] };
+  await saveDB();
+  render();
   closeModal('modal-import');
-  showToast('Đã xóa toàn bộ dữ liệu!', 'warning');
+  showToast('Đã xóa toàn bộ!', 'warning');
 }
 
-function openImport() { showModal('modal-import'); }
-
-// ── MODAL HELPERS ──────────────────────────────────────────
+// ══════════════════════════════════════════════════════════
+// MODAL HELPERS
+// ══════════════════════════════════════════════════════════
 function showModal(id) { document.getElementById(id)?.classList.add('show'); }
-function closeModal(id) { document.getElementById(id)?.classList.remove('show'); }
+function closeModal(id){ document.getElementById(id)?.classList.remove('show'); }
 
-// ── TOAST ──────────────────────────────────────────────────
-const TOAST_ICONS = {
-  success: `<svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>`,
-  error:   `<svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
-  warning: `<svg viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
-};
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.show').forEach(m => closeModal(m.id));
+});
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', function(e) { if (e.target===this) closeModal(this.id); });
+});
 
-function showToast(msg, type = '') {
+// ══════════════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════════════
+function showToast(msg, type='') {
+  const icons = {
+    success:`<svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+    error:  `<svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+    warning:`<svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+  };
   const el = document.createElement('div');
   el.className = `toast ${type}`;
-  el.innerHTML = `${TOAST_ICONS[type] || ''}${escHtml(msg)}`;
+  el.innerHTML = `${icons[type]||''}${escHtml(msg)}`;
   document.getElementById('toast-container')?.appendChild(el);
   setTimeout(() => el.remove(), 3200);
 }
 
-// ── UTILS ──────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════════════════
+function setEl(id, v)  { const el=document.getElementById(id); if(el) el.textContent=v; }
+function getVal(id)    { return document.getElementById(id)?.value; }
+function setVal(id, v) { const el=document.getElementById(id); if(el) el.value=v||''; }
+
 function formatDate(d) {
   if (!d) return '';
   const dt = new Date(d);
   return isNaN(dt) ? d : dt.toLocaleDateString('vi-VN');
 }
-
-function formatDateTime(ts) {
-  if (!ts) return '';
-  return new Date(ts).toLocaleString('vi-VN');
+function formatDateTime(ts) { if (!ts) return ''; return new Date(ts).toLocaleString('vi-VN'); }
+function getDaysLeft(s) { return Math.ceil((new Date(s)-Date.now())/86400000); }
+function dateStamp()   { return new Date().toISOString().slice(0,10); }
+function dl(content, filename, type) {
+  const b=new Blob([content],{type}), u=URL.createObjectURL(b);
+  Object.assign(document.createElement('a'),{href:u,download:filename}).click();
+  URL.revokeObjectURL(u);
+}
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-function getDaysLeft(dateStr) {
-  return Math.ceil((new Date(dateStr) - Date.now()) / 86400000);
-}
+// ══════════════════════════════════════════════════════════
+// BOOT
+// ══════════════════════════════════════════════════════════
+(async () => {
+  await loadDB();
+  switchPhase('dieu-tra');
+  updateSaveIndicator(true);
 
-function dateStamp() {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function download(content, filename, type) {
-  const blob = new Blob([content], { type });
-  const url  = URL.createObjectURL(blob);
-  const a    = Object.assign(document.createElement('a'), { href: url, download: filename });
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-function escHtml(str) {
-  return String(str)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
-}
-
-function escAttr(str) {
-  return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#039;');
-}
-
-// ── KEYBOARD / GLOBAL EVENTS ───────────────────────────────
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    document.querySelectorAll('.modal-overlay.show').forEach(m => closeModal(m.id));
-  }
-});
-
-document.querySelectorAll('.modal-overlay').forEach(el => {
-  el.addEventListener('click', function(e) {
-    if (e.target === this) closeModal(this.id);
+  // Re-attach close handlers after DOM is stable
+  document.querySelectorAll('.modal-overlay').forEach(el => {
+    el.addEventListener('click', function(e) { if (e.target===this) closeModal(this.id); });
   });
-});
-
-// ── DEMO DATA ──────────────────────────────────────────────
-function initDemo() {
-  if (db.vuAns.length > 0) return;
-  const now = new Date().toISOString();
-  const mk = (id, soVu, toiDanh, dieuKhoan, trangThai, ksv, ngayKhoiTo, hanDieuTra, ngayDeNghi, ghiChu, biCans) => ({
-    id, soVu, toiDanh, dieuKhoan, trangThai, ksv,
-    ngayKhoiTo, hanDieuTra, ngayDeNghi, ghiChu,
-    biCans: biCans.map(([ten, namSinh, cccd]) => ({ ten, namSinh, cccd })),
-    notes: [], history: [{ ts: now, text: 'Tạo mới vụ án' }],
-    createdAt: now, updatedAt: now,
-  });
-
-  db.vuAns = [
-    mk('va_1','42/QĐ-CSHS','Đào lửa','Điều 168 BLHS','truy-to','La Phi Hề','2025-01-15','2025-04-15','2025-03-20','Bao dooki',[
-    ['Lê Phạm Lanh Anh','2003','030195001234']
-  ]),
-    mk('va_2','57/QĐ-CSHS','Lừa đảo chiếm đoạt tài sản','Điều 174 BLHS','de-nghi','Trần Thị B','2025-02-03','2025-08-03','2025-05-01','Chờ VKS phê chuẩn',[['Trần Thị Bình','1988','038088009876']]),
-    mk('va_3','61/QĐ-CSHS','Tàng trữ ma túy','Điều 249 BLHS','dieu-tra','Lê Hoàng C','2025-03-20','2025-06-20','','',[ ['Lê Hoàng Cường','2000','']]),
-    mk('va_4','74/QĐ-CSHS','Cố ý gây thương tích','Điều 134 BLHS','de-nghi','Phạm Minh D','2025-04-10','2025-07-10','2025-06-05','2 bị can',[['Phạm Minh Đức','1992',''],['Nguyễn Thanh Hải','1990','']]),
-    mk('va_5','89/QĐ-CSHS','Trộm cắp tài sản','Điều 173 BLHS','dinh-chi','Hoàng Thị E','2025-05-05','2025-08-05','','Bị hại rút đơn',[['Hoàng Thị Em','2003','']]),
-  ];
-  saveData(db);
-}
-
-// ── BOOT ───────────────────────────────────────────────────
-initDemo();
-renderTable();
-updateSaveIndicator();
+})();

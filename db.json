@@ -1,0 +1,240 @@
+{
+  "version": 3,
+  "vuAns": [
+    {
+      "id": "va_001",
+      "dl": "DL001",
+      "tenBiCan": "Nguyễn Văn Anh",
+      "namSinh": "1995",
+      "cccd": "030195001234",
+      "diaChi": "Hà Nội",
+      "dieuLuat": "Điều 168 BLHS",
+      "ksv": "Nguyễn Văn A",
+      "ghiChu": "",
+      "dieuTra": {
+        "trangThai": "moi",
+        "ngayKhoiTo": "2025-01-10",
+        "hanDieuTra": "2025-04-10",
+        "coQuanDieuTra": "CQĐT Quận 1",
+        "ghiChu": ""
+      },
+      "truyTo": {
+        "trangThai": "truy-to",
+        "ngayDeNghi": "2025-03-15",
+        "ngayQuyetDinh": "2025-03-28",
+        "ketQua": "truy-to",
+        "ghiChu": "Đã ban hành cáo trạng"
+      },
+      "xetXu": {
+        "trangThai": "da-xet-xu",
+        "ngayXetXu": "2025-05-10",
+        "toaAn": "TAND Quận 1",
+        "ketQua": "da-xet-xu",
+        "ghiChu": "Phạt 5 năm tù"
+      },
+      "giaiDoan": "xet-xu",
+      "history": [
+        {
+          "ts": "2025-01-10T08:00:00.000Z",
+          "text": "Tạo vụ án mới — giai đoạn Điều tra"
+        },
+        {
+          "ts": "2025-03-15T09:00:00.000Z",
+          "text": "Chuyển sang giai đoạn Truy tố"
+        },
+        {
+          "ts": "2025-05-01T09:00:00.000Z",
+          "text": "Chuyển sang giai đoạn Xét xử"
+        }
+      ],
+      "createdAt": "2025-01-10T08:00:00.000Z",
+      "updatedAt": "2025-05-01T09:00:00.000Z"
+    },
+    {
+      "id": "va_002",
+      "dl": "DL002",
+      "tenBiCan": "Trần Thị Bình",
+      "namSinh": "1988",
+      "cccd": "038088009876",
+      "diaChi": "TP.HCM",
+      "dieuLuat": "Điều 174 BLHS",
+      "ksv": "Trần Thị B",
+      "ghiChu": "",
+      "dieuTra": {
+        "trangThai": "moi",
+        "ngayKhoiTo": "2025-02-03",
+        "hanDieuTra": "2025-08-03",
+        "coQuanDieuTra": "CQĐT Quận 3",
+        "ghiChu": ""
+      },
+      "truyTo": {
+        "trangThai": "cho-phe-chuan",
+        "ngayDeNghi": "2025-05-01",
+        "ngayQuyetDinh": "",
+        "ketQua": "de-nghi",
+        "ghiChu": "Chờ VKS phê chuẩn"
+      },
+      "xetXu": {
+        "trangThai": "dang-xx",
+        "ketQua": "dang-xx",
+        "ngayXetXu": "",
+        "toaAn": "",
+        "ghiChu": ""
+      },
+      "giaiDoan": "xet-xu",
+      "history": [
+        {
+          "ts": "2025-02-03T08:00:00.000Z",
+          "text": "Tạo vụ án mới — giai đoạn Điều tra"
+        },
+        {
+          "ts": "2025-05-01T09:00:00.000Z",
+          "text": "Chuyển sang giai đoạn Truy tố"
+        },
+        {
+          "ts": "2026-04-07T07:15:43.689Z",
+          "text": "→ Chuyển sang giai đoạn Xét xử"
+        }
+      ],
+      "createdAt": "2025-02-03T08:00:00.000Z",
+      "updatedAt": "2026-04-07T07:15:43.689Z"
+    },
+    {
+      "id": "va_003",
+      "dl": "DL003",
+      "tenBiCan": "Lê Hoàng Cường",
+      "namSinh": "2000",
+      "cccd": "",
+      "diaChi": "Đà Nẵng",
+      "dieuLuat": "Điều 249 BLHS",
+      "ksv": "Lê Hoàng C",
+      "ghiChu": "",
+      "dieuTra": {
+        "trangThai": "moi",
+        "ngayKhoiTo": "2025-03-20",
+        "hanDieuTra": "2025-06-20",
+        "coQuanDieuTra": "CQĐT Quận 5",
+        "ghiChu": ""
+      },
+      "truyTo": {
+        "trangThai": "de-nghi",
+        "ketQua": "de-nghi",
+        "ngayDeNghi": "",
+        "ngayQuyetDinh": "",
+        "ghiChu": ""
+      },
+      "xetXu": null,
+      "giaiDoan": "truy-to",
+      "history": [
+        {
+          "ts": "2025-03-20T08:00:00.000Z",
+          "text": "Tạo vụ án mới — giai đoạn Điều tra"
+        },
+        {
+          "ts": "2026-04-07T07:15:33.003Z",
+          "text": "→ Chuyển sang giai đoạn Truy tố"
+        }
+      ],
+      "createdAt": "2025-03-20T08:00:00.000Z",
+      "updatedAt": "2026-04-07T07:15:33.003Z"
+    },
+    {
+      "id": "va_004",
+      "dl": "DL004",
+      "tenBiCan": "Phạm Minh Đức",
+      "namSinh": "1992",
+      "cccd": "",
+      "diaChi": "Hải Phòng",
+      "dieuLuat": "Điều 134 BLHS",
+      "ksv": "Phạm Minh D",
+      "ghiChu": "Có đồng phạm",
+      "dieuTra": {
+        "trangThai": "nhan-lai",
+        "ngayKhoiTo": "2025-04-10",
+        "hanDieuTra": "2025-07-10",
+        "coQuanDieuTra": "CQĐT Huyện X",
+        "ghiChu": "Nhận lại từ VKS"
+      },
+      "truyTo": null,
+      "xetXu": null,
+      "giaiDoan": "dieu-tra",
+      "history": [
+        {
+          "ts": "2025-04-10T08:00:00.000Z",
+          "text": "Tạo vụ án mới — giai đoạn Điều tra"
+        }
+      ],
+      "createdAt": "2025-04-10T08:00:00.000Z",
+      "updatedAt": "2025-04-10T08:00:00.000Z"
+    },
+    {
+      "id": "va_005",
+      "dl": "DL005",
+      "tenBiCan": "Hoàng Thị Em",
+      "namSinh": "2003",
+      "cccd": "",
+      "diaChi": "Cần Thơ",
+      "dieuLuat": "Điều 173 BLHS",
+      "ksv": "Hoàng Thị E",
+      "ghiChu": "Bị hại rút đơn",
+      "dieuTra": {
+        "trangThai": "moi",
+        "ngayKhoiTo": "2025-05-05",
+        "hanDieuTra": "2025-08-05",
+        "coQuanDieuTra": "CQĐT Quận 9",
+        "ghiChu": ""
+      },
+      "truyTo": {
+        "trangThai": "dinh-chi",
+        "ngayDeNghi": "",
+        "ngayQuyetDinh": "2025-06-01",
+        "ketQua": "dinh-chi",
+        "ghiChu": "Đình chỉ vì bị hại rút đơn"
+      },
+      "xetXu": null,
+      "giaiDoan": "truy-to",
+      "history": [
+        {
+          "ts": "2025-05-05T08:00:00.000Z",
+          "text": "Tạo vụ án mới — giai đoạn Điều tra"
+        },
+        {
+          "ts": "2025-06-01T09:00:00.000Z",
+          "text": "Chuyển sang Truy tố — Đình chỉ"
+        }
+      ],
+      "createdAt": "2025-05-05T08:00:00.000Z",
+      "updatedAt": "2025-06-01T09:00:00.000Z"
+    },
+    {
+      "id": "va_1775546594010",
+      "dl": "DL006",
+      "tenBiCan": "Lê Phạm Lan Anh",
+      "namSinh": "2003",
+      "cccd": "123321",
+      "diaChi": "TX",
+      "dieuLuat": "168BLHS",
+      "ksv": "La Phi Hề",
+      "ghiChu": "Bao dokki",
+      "giaiDoan": "dieu-tra",
+      "dieuTra": {
+        "trangThai": "moi",
+        "ngayKhoiTo": "2026-04-07",
+        "hanDieuTra": "2026-04-21",
+        "coQuanDieuTra": "OK",
+        "ghiChu": "OK"
+      },
+      "truyTo": null,
+      "xetXu": null,
+      "notes": [],
+      "history": [
+        {
+          "ts": "2026-04-07T07:23:14.010Z",
+          "text": "Tạo vụ án mới — giai đoạn Điều tra"
+        }
+      ],
+      "createdAt": "2026-04-07T07:23:14.010Z",
+      "updatedAt": "2026-04-07T07:23:14.010Z"
+    }
+  ]
+}
