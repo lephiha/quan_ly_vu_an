@@ -808,3 +808,25 @@ textarea.form-control { resize: vertical; min-height: 72px; }
   .form-row { grid-template-columns: 1fr; }
   .detail-grid { grid-template-columns: 1fr; }
 }
+
+.signature {
+    position: fixed;
+    bottom: 10px;
+    right: 20px;
+    font-size: 12px;
+    opacity: 0.6;
+    font-style: italic;
+    color: #aaa;
+    pointer-events: none;
+}
+
+.sidebar-signature {
+    margin-top: auto;
+    padding: 16px;
+    font-size: 12px;
+    color: #888;
+    text-align: center;
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+
