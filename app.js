@@ -604,7 +604,9 @@ function initDemo() {
   });
 
   db.vuAns = [
-    mk('va_1','42/QĐ-CSHS','Cướp tài sản','Điều 168 BLHS','truy-to','Nguyễn Văn A','2025-01-15','2025-04-15','2025-03-20','Đã xét xử sơ thẩm',[['Nguyễn Văn Anh','1995','030195001234']]),
+    mk('va_1','42/QĐ-CSHS','Đào lửa','Điều 168 BLHS','truy-to','La Phi Hề','2025-01-15','2025-04-15','2025-03-20','Bao dooki',[
+    ['Lê Phạm Lanh Anh','2003','030195001234']
+  ]),
     mk('va_2','57/QĐ-CSHS','Lừa đảo chiếm đoạt tài sản','Điều 174 BLHS','de-nghi','Trần Thị B','2025-02-03','2025-08-03','2025-05-01','Chờ VKS phê chuẩn',[['Trần Thị Bình','1988','038088009876']]),
     mk('va_3','61/QĐ-CSHS','Tàng trữ ma túy','Điều 249 BLHS','dieu-tra','Lê Hoàng C','2025-03-20','2025-06-20','','',[ ['Lê Hoàng Cường','2000','']]),
     mk('va_4','74/QĐ-CSHS','Cố ý gây thương tích','Điều 134 BLHS','de-nghi','Phạm Minh D','2025-04-10','2025-07-10','2025-06-05','2 bị can',[['Phạm Minh Đức','1992',''],['Nguyễn Thanh Hải','1990','']]),
