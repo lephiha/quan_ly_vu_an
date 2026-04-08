@@ -89,24 +89,62 @@ const IC = {
 // STATUS CONFIG
 // ══════════════════════════════════════════════════════════
 const DT_STATUS = {
-  'moi':      { label: 'Mới',        cls: 'badge-moi'       },
-  'nhan-lai': { label: 'Nhận lại',   cls: 'badge-nhan-lai'  },
-  'tach':     { label: 'Tách vụ',    cls: 'badge-tach'      },
-  'dinh-chi': { label: 'Đình chỉ',   cls: 'badge-dinh-chi-dt'},
+  'cu':           { label: 'Cũ',                       cls: 'badge-cu'       },
+  'moi-nhan-lai': { label: 'Mới nhận lại để ĐT',       cls: 'badge-nhan-lai' },
+  'nhan-lai-bs':  { label: 'Nhận lại để ĐT bổ sung',   cls: 'badge-nhan-lai' },
+  'tach':         { label: 'Tách',                      cls: 'badge-tach'     },
+  'nhap':         { label: 'Nhập',                      cls: 'badge-nhap'     },
+  'phuc-hoi':     { label: 'Phục hồi',                  cls: 'badge-phuc-hoi' },
+  'moi':          { label: 'Mới',                       cls: 'badge-moi'      },
+  'chuyen-den':   { label: 'Chuyển đến',                cls: 'badge-chuyen'   },
+  'chuyen-di':    { label: 'Chuyển đi',                 cls: 'badge-chuyen'   },
+};
+
+// Giải quyết điều tra
+const DT_GIAIQUYET = {
+  'dinh-chi':   { label: 'Đình chỉ',      cls: 'badge-dinh-chi-dt' },
+  'de-nghi-tt': { label: 'Đề nghị truy tố', cls: 'badge-de-nghi'   },
+  'tam-dinh-chi': { label: 'Tạm đình chỉ', cls: 'badge-cho-pc'     },
 };
 
 const TT_STATUS = {
-  'de-nghi':   { label: 'Đề nghị TT',    cls: 'badge-de-nghi' },
-  'cho-pc':    { label: 'Chờ phê chuẩn', cls: 'badge-cho-pc'  },
-  'truy-to':   { label: 'Đã truy tố',    cls: 'badge-truy-to' },
-  'dinh-chi':  { label: 'Đình chỉ',      cls: 'badge-dinh-chi'},
-  'tam-dinh-chi':{ label: 'Tạm đình chỉ', cls: 'badge-cho-pc' },
+  'cu':              { label: 'Cũ',                        cls: 'badge-cu'       },
+  'cqdt-hoan':       { label: 'CQĐT hoàn lại sau khi trả', cls: 'badge-nhan-lai' },
+  'nhan-lai-bs':     { label: 'Nhận lại để ĐT bổ sung',    cls: 'badge-nhan-lai' },
+  'tra-dtbs-chua-nl':{ label: 'Trả ĐTBS chưa nhận lại',    cls: 'badge-cho-pc'   },
+  'tach':            { label: 'Tách',                       cls: 'badge-tach'     },
+  'nhap':            { label: 'Nhập',                       cls: 'badge-nhap'     },
+  'phuc-hoi':        { label: 'Phục hồi',                   cls: 'badge-phuc-hoi' },
+  'moi':             { label: 'Mới',                        cls: 'badge-moi'      },
+  'chuyen-den':      { label: 'Chuyển đến',                 cls: 'badge-chuyen'   },
+  'chuyen-di':       { label: 'Chuyển đi',                  cls: 'badge-chuyen'   },
+};
+
+// Giải quyết truy tố
+const TT_GIAIQUYET = {
+  'dinh-chi':      { label: 'Đình chỉ',         cls: 'badge-dinh-chi'  },
+  'tam-dinh-chi':  { label: 'Tạm đình chỉ',     cls: 'badge-cho-pc'    },
+  'tra-hs-dtbs':   { label: 'Trả hồ sơ ĐT bổ sung', cls: 'badge-nhan-lai'},
+  'truy-to':       { label: 'Truy tố',           cls: 'badge-truy-to'   },
 };
 
 const XX_STATUS = {
-  'dang-xx':    { label: 'Đang xét xử',   cls: 'badge-dang-xx'    },
-  'da-xet-xu':  { label: 'Đã xét xử',     cls: 'badge-da-xx'      },
-  'giai-quyet': { label: 'Đã giải quyết', cls: 'badge-giai-quyet' },
+  'xet-xu':        { label: 'Xét xử',           cls: 'badge-dang-xx'   },
+  'tam-dinh-chi':  { label: 'Tạm đình chỉ',     cls: 'badge-cho-pc'    },
+  'dinh-chi':      { label: 'Đình chỉ',         cls: 'badge-dinh-chi'  },
+  'huy-moi-nl-xx': { label: 'Huỷ mới nhận XX lại', cls: 'badge-nhan-lai'},
+  'dtbs-moi-nl':   { label: 'ĐTBS mới nhận lại', cls: 'badge-nhan-lai' },
+  'phuc-hoi':      { label: 'Phục hồi',          cls: 'badge-phuc-hoi' },
+  'moi':           { label: 'Mới',               cls: 'badge-moi'       },
+  'chuyen-den':    { label: 'Chuyển đến',         cls: 'badge-chuyen'   },
+  'tra-hsdtbs':    { label: 'Trả HSĐTBS',         cls: 'badge-nhan-lai' },
+};
+
+// Giải quyết xét xử
+const XX_GIAIQUYET = {
+  'da-xet-xu':    { label: 'Đã xét xử',      cls: 'badge-da-xx'     },
+  'tam-dinh-chi': { label: 'Tạm đình chỉ',   cls: 'badge-cho-pc'    },
+  'dinh-chi':     { label: 'Đình chỉ',       cls: 'badge-dinh-chi'  },
 };
 
 function getBadgeDT(s) { return _badge(DT_STATUS[s], s); }
@@ -117,6 +155,9 @@ function _badge(cfg, raw) {
   if (!cfg) return `<span class="badge" style="color:var(--gray)">${raw || '—'}</span>`;
   return `<span class="badge ${cfg.cls}">${cfg.label}</span>`;
 }
+function getBadgeDTGQ(s) { return _badge(DT_GIAIQUYET[s], s); }
+function getBadgeTTGQ(s) { return _badge(TT_GIAIQUYET[s], s); }
+function getBadgeXXGQ(s) { return _badge(XX_GIAIQUYET[s], s); }
 
 // ══════════════════════════════════════════════════════════
 // RENDER
@@ -801,3 +842,27 @@ function escHtml(s) {
     el.addEventListener('click', function(e) { if (e.target===this) closeModal(this.id); });
   });
 })();
+
+// ── THEME ──────────────────────────────────────────────────
+function initTheme() {
+  const saved = localStorage.getItem('theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  updateThemeIcon(saved);
+}
+
+function toggleTheme() {
+  const cur  = document.documentElement.getAttribute('data-theme') || 'dark';
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+  updateThemeIcon(next);
+}
+
+function updateThemeIcon(theme) {
+  const btn = document.getElementById('theme-toggle');
+  if (!btn) return;
+  btn.innerHTML = theme === 'dark'
+    ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`
+    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+  btn.title = theme === 'dark' ? 'Chuyển sáng' : 'Chuyển tối';
+}

@@ -90,6 +90,9 @@
         <div class="save-dot" id="save-dot"></div>
         <span id="save-time">Đang tải...</span>
       </div>
+      <button class="btn btn-ghost btn-sm" id="theme-toggle" onclick="toggleTheme()" title="Bật/tắt sáng tối" style="padding:6px 8px;">
+       
+      </button>
       <button class="btn btn-ghost btn-sm" onclick="showModal('modal-import')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Xuất / Nhập
@@ -356,10 +359,15 @@
         <div class="form-group">
           <label class="form-label">Trạng thái</label>
           <select class="form-control" id="f-dt-trangthai">
+            <option value="cu">Cũ</option>
+            <option value="moi-nhan-lai">Mới nhận lại để ĐT</option>
+            <option value="nhan-lai-bs">Nhận lại để ĐT bổ sung</option>
+            <option value="tach">Tách</option>
+            <option value="nhap">Nhập</option>
+            <option value="phuc-hoi">Phục hồi</option>
             <option value="moi">Mới</option>
-            <option value="nhan-lai">Nhận lại</option>
-            <option value="tach">Tách vụ</option>
-            <option value="dinh-chi">Đình chỉ</option>
+            <option value="chuyen-den">Chuyển đến</option>
+            <option value="chuyen-di">Chuyển đi</option>
           </select>
         </div>
         <div class="form-group">
@@ -379,6 +387,15 @@
       </div>
       <div class="form-row full">
         <div class="form-group">
+          <label class="form-label">Giải quyết ĐT</label>
+          <select class="form-control" id="f-dt-giaiquyet">
+            <option value="">— Chưa có —</option>
+            <option value="dinh-chi">Đình chỉ</option>
+            <option value="de-nghi-tt">Đề nghị truy tố</option>
+            <option value="tam-dinh-chi">Tạm đình chỉ</option>
+          </select>
+        </div>
+        <div class="form-group">
           <label class="form-label">Ghi chú điều tra</label>
           <input class="form-control" id="f-dt-ghichu" placeholder="Ghi chú giai đoạn điều tra...">
         </div>
@@ -393,22 +410,26 @@
         <div class="form-group">
           <label class="form-label">Trạng thái</label>
           <select class="form-control" id="f-tt-trangthai">
-            <option value="">— Chưa có —</option>
-            <option value="de-nghi">Đề nghị truy tố</option>
-            <option value="cho-pc">Chờ phê chuẩn</option>
-            <option value="truy-to">Đã truy tố</option>
-            <option value="dinh-chi">Đình chỉ</option>
-            <option value="tam-dinh-chi">Tạm đình chỉ</option>
+            <option value="cu">Cũ</option>
+            <option value="cqdt-hoan">CQĐT hoàn lại sau khi trả</option>
+            <option value="nhan-lai-bs">Nhận lại để ĐT bổ sung</option>
+            <option value="tra-dtbs-chua-nl">Trả ĐTBS chưa nhận lại</option>
+            <option value="tach">Tách</option>
+            <option value="nhap">Nhập</option>
+            <option value="phuc-hoi">Phục hồi</option>
+            <option value="moi">Mới</option>
+            <option value="chuyen-den">Chuyển đến</option>
+            <option value="chuyen-di">Chuyển đi</option>
           </select>
         </div>
         <div class="form-group">
           <label class="form-label">Kết quả</label>
           <select class="form-control" id="f-tt-ketqua">
             <option value="">— Chưa có —</option>
-            <option value="de-nghi">Đề nghị TT</option>
-            <option value="truy-to">Truy tố</option>
             <option value="dinh-chi">Đình chỉ</option>
             <option value="tam-dinh-chi">Tạm đình chỉ</option>
+            <option value="tra-hs-dtbs">Trả hồ sơ ĐT bổ sung</option>
+            <option value="truy-to">Truy tố</option>
           </select>
         </div>
       </div>
@@ -438,19 +459,24 @@
         <div class="form-group">
           <label class="form-label">Trạng thái</label>
           <select class="form-control" id="f-xx-trangthai">
-            <option value="">— Chưa có —</option>
-            <option value="dang-xx">Đang xét xử</option>
-            <option value="da-xet-xu">Đã xét xử</option>
-            <option value="giai-quyet">Đã giải quyết</option>
+            <option value="xet-xu">Xét xử</option>
+            <option value="tam-dinh-chi">Tạm đình chỉ</option>
+            <option value="dinh-chi">Đình chỉ</option>
+            <option value="huy-moi-nl-xx">Huỷ mới nhận XX lại</option>
+            <option value="dtbs-moi-nl">ĐTBS mới nhận lại</option>
+            <option value="phuc-hoi">Phục hồi</option>
+            <option value="moi">Mới</option>
+            <option value="chuyen-den">Chuyển đến</option>
+            <option value="tra-hsdtbs">Trả HSĐTBS</option>
           </select>
         </div>
         <div class="form-group">
           <label class="form-label">Kết quả</label>
           <select class="form-control" id="f-xx-ketqua">
             <option value="">— Chưa có —</option>
-            <option value="dang-xx">Đang xét xử</option>
             <option value="da-xet-xu">Đã xét xử</option>
-            <option value="giai-quyet">Đã giải quyết</option>
+            <option value="tam-dinh-chi">Tạm đình chỉ</option>
+            <option value="dinh-chi">Đình chỉ</option>
           </select>
         </div>
       </div>
